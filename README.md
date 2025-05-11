@@ -11,8 +11,8 @@ Ini adalah panduan singkat untuk menjalankan proyek Laravel dari GitHub tanpa me
 ### Clone Proyek dari GitHub
 
 ```bash
-git clone https://github.com/Zaidizzah/digitalization-documents.git
-cd digitalization-documents
+git clone https://github.com/Zaidizzah/myforms.git
+cd myforms
 ```
 
 ### Install dependency via composer
@@ -48,7 +48,7 @@ php artisan serve
 
 ---
 
-<p align="center"><img src="https://github.com/Zaidizzah/myforms/blob/main/public/images/MYFORMS%20logo%20-%20with%20color.png" width="400" alt="Laravel Logo"></p>
+<p align="center"><img src="https://github.com/Zaidizzah/myforms/blob/main/public/images/MYFORMS%20cropped%20logo%20-%20with%20color.png" width="400" alt="Laravel Logo"></p>
 
 # MYFORMS
 
