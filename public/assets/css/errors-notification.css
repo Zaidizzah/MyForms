@@ -1,0 +1,154 @@
+/* Error Notification Component */
+.error-notification-container {
+    position: fixed;
+    display: block;
+    bottom: 0;
+    right: 20px;
+    max-width: 350px;
+    z-index: 551;
+}
+
+.error-notification-title {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    font-size: 16px;
+    font-weight: bold;
+    color: var(--white-background);
+    background-color: #f44336;
+    padding: 4px 10px;
+    border-radius: 4px 4px 0 0;
+}
+
+button.error-notification-remove {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 32px;
+    height: 32px;
+    background-color: var(--white-background);
+    border-radius: 0 4px 0 4px;
+    border: 1px solid #f44336;
+    cursor: pointer;
+    color: var(--black-color);
+    font-size: 16px;
+
+    &::after {
+        content: "✕";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+}
+
+.error-notification-toggle {
+    background-color: var(--white-background);
+    padding: 12px 20px;
+    border-radius: 0 4px 0 0;
+    border-width: 1px 1px 0 1px;
+    border-style: solid;
+    border-color: #f44336;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.error-notification-toggle:hover {
+    background-color: var(--hover-active-color);
+}
+
+.error-notification-toggle .error-notification-toggle-text {
+    color: var(--blue);
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    margin-right: calc(32px - 20px + 4px);
+}
+
+.error-notification-content {
+    background-color: var(--white-background);
+    border: 1px solid var(--border-color);
+    max-height: 450px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+}
+
+.error-notification-content > ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+.error-notification-content.show {
+    display: block;
+}
+
+.error-notification-content .error-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--black-color);
+    display: flex;
+    align-items: flex-start;
+    transition: background-color ease 0.3s, transform ease 0.3s;
+}
+
+.error-notification-content .error-item:last-child {
+    border-bottom: none;
+}
+
+.error-notification-content .error-item:hover {
+    background-color: var(--hover-active-color);
+}
+
+.error-notification-content .error-item i {
+    color: var(--black-color);
+    margin-right: 10px;
+    font-size: 16px;
+}
+
+.error-notification-content .error-item .error-item-field {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.error-notification-content .error-item .error-item-field::after {
+    content: ":";
+    margin-left: 5px;
+}
+
+.error-notification-toggle.shake {
+    animation: shake 0.5s;
+}
+
+@keyframes shake {
+    0%,
+    100% {
+        transform: translateX(0);
+    }
+    10%,
+    30%,
+    50%,
+    70%,
+    90% {
+        transform: translateX(-5px);
+    }
+    20%,
+    40%,
+    60%,
+    80% {
+        transform: translateX(5px);
+    }
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .error-notification-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+}

@@ -1,0 +1,123 @@
+.table-wrapper {
+    overflow: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: max(65rem, 100%);
+    table-layout: fixed;
+}
+
+th,
+caption {
+    text-align: start;
+}
+
+caption {
+    margin-block: 0.75rem;
+}
+
+thead th:not(:first-child),
+td {
+    text-align: end;
+}
+
+thead {
+    border-block-end: 2px solid;
+    background: #ffff;
+}
+
+tfoot {
+    border-block: 2px solid;
+    background: #f5f5f5;
+}
+
+th,
+td {
+    border: 1px solid #d3d3d3;
+    padding: 0.25rem 0.75rem;
+    vertical-align: baseline;
+}
+
+th:first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    border-inline-end: none;
+    z-index: 548;
+}
+
+tbody th {
+    background: #ffff;
+}
+
+thead th,
+tfoot th {
+    background: #f5f5f5;
+}
+
+thead th {
+    vertical-align: bottom;
+}
+
+td:first-of-type,
+:where(thead, tfoot) th:nth-child(2) {
+    border-inline-start: none;
+    z-index: 548;
+}
+
+th:first-of-type {
+    width: 10rem;
+    z-index: 548;
+}
+
+th:first-child::after {
+    content: "";
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 0;
+    width: 1px;
+    height: 100%;
+    background: #d3d3d3;
+    z-index: 548;
+}
+
+tr:hover,
+tr.active {
+    background: #f5f5f5;
+}
+
+tbody tr th,
+tbody tr td {
+    word-break: break-word;
+}
+
+td.no-data {
+    text-align: start;
+    padding-inline-start: 0.75rem;
+}
+
+/* For the shadow: https://adrianroselli.com/2020/01/fixed-table-headers.html */
+div[tabindex="0"][aria-labelledby][role="region"] {
+    background: linear-gradient(
+            to right,
+            transparent 30%,
+            rgba(255, 255, 255, 0)
+        ),
+        linear-gradient(to right, rgba(255, 255, 255, 0), #ffff 70%) 0 100%,
+        radial-gradient(
+            farthest-side at 0% 50%,
+            rgba(0, 0, 0, 0.2),
+            rgba(0, 0, 0, 0)
+        ),
+        radial-gradient(
+                farthest-side at 100% 50%,
+                rgba(0, 0, 0, 0.2),
+                rgba(0, 0, 0, 0)
+            )
+            0 100%;
+    background-repeat: no-repeat;
+    background-color: #ffff;
+    background-size: 4em 100%, 4em 100%, 1.4em 100%, 1.4em 100%;
+    background-position: 0 0, 100%, 0 0, 100%;
+    background-attachment: local, local, scroll, scroll;
+}

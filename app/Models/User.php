@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Support\Str;
+
 
 class User extends Authenticatable
 {
@@ -18,9 +20,12 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'uuid',
         'name',
         'email',
+        'role',
         'password',
+        'deleted_at'
     ];
 
     /**
@@ -42,4 +47,29 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    /**
+     * Boot the model and add a creating event listener to generate a UUID
+     * if it is not already set on the model being created.
+     */
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($model) {
+            if (empty($model->uuid)) {
+                $model->uuid = (string) Str::uuid() . "-" . date('ymdHis');
+            }
+        });
+    }
+
+    // Scope fucntions
+    public function scopeSearch($query, $search)
+    {
+        $query->when($search, function ($query, $search) {
+            return $query->where('name', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%')
+                ->orWhere('role', 'like', '%' . $search . '%');
+        });
+    }
 }
