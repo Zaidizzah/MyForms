@@ -55,7 +55,7 @@ php artisan serve
 Merupakan program yang dibuat dan diperuntukan untuk pembuatan formulir maupun quis sebagai riset data maupaun hal lain yang kurang lebih sama seperti [Google Forms](https://docs.google.com/forms/), [Microsoft Forms](https://forms.office.com/), maupun platform form builder atau quis builder lainnya. Yang kurang lebih dengan fitur yang hampir serupa namun lebih sederhana lagi.
 
 ## Kontributor:
-- [Zaid Izzah Nurbaain](https://github.com/Zaidizzah/) sebagai game analist, dan game desainer
+- [Zaid Izzah Nurbaain](https://github.com/Zaidizzah/) sebagai Sistem analist, debugger, dan fullstack web developer
 
 ## Link cepat
 - [Mengenai laravel](#mengenai-laravel)
