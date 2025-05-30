@@ -40,7 +40,7 @@
             type="text"
             class="search-input"
             id="main-search-contents"
-            placeholder="Type / to search"
+            placeholder="Type CTRL + / to search"
           />
         </div>
       </div>
@@ -86,17 +86,11 @@
             </div>
             Users
           </a>
-          <a @class(['submenu-item', 'active' => request()->routeIs('form.index')]) href="{{ route("form.index") }}" role="button" data-tooltip="true" data-tooltip-title="Forms menu">
+          <a @class(['submenu-item', 'active' => request()->routeIs('form.index', 'form.create', 'form.edit')]) href="{{ route("form.index") }}" role="button" data-tooltip="true" data-tooltip-title="Forms menu">
             <div class="submenu-icon">
                 <img class="icon" src="{{ asset("images/application icons/forms.png") }}" loading="lazy" alt="Forms icon">
             </div>
             Forms
-          </a>
-          <a class="submenu-item" href="/" role="button" data-tooltip="true" data-tooltip-title="Quiz menu">
-            <div class="submenu-icon">
-                <img class="icon" src="{{ asset("images/application icons/quiz.png") }}" loading="lazy" alt="Quiz icon">
-            </div>
-            Quiz
           </a>
       </div>
     </nav>

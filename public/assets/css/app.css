@@ -1,7 +1,13 @@
 :root {
     --white-background: #ffff;
     --white-color: #ffff;
+    --white-1-color: #f9f9f9;
+    --white-2-color: #f3f3f3;
+    --white-3-color: #e8e8e8;
     --black-color: #586069;
+    --black-1-color: #24292e;
+    --black-2-color: #30363d;
+    --grey-color: #c8c9ca;
     --border-color: #444f56;
     --placeholder-color: #c8c9ca;
     --hover-active-color: #f9f9f9;
@@ -91,7 +97,7 @@ body {
 /* CSS untuk styling tooltip */
 .tooltip {
     position: relative;
-    background-color: #ffffe1;
+    background-color: #fff9f0;
     color: var(--black-color);
     padding: 8px 12px;
     border: 1px solid var(--border-color);
@@ -121,7 +127,7 @@ body {
 
 /* Arrow position for tooltip element */
 .tooltip.top::after {
-    bottom: -11px;
+    bottom: -12px;
     left: 50%;
     margin-left: -6px;
     border-color: var(--border-color) transparent transparent transparent;
@@ -131,7 +137,7 @@ body {
 }
 
 .tooltip.bottom::after {
-    top: -11px;
+    top: -12px;
     left: 50%;
     margin-left: -6px;
     border-color: transparent transparent var(--border-color) transparent;
@@ -156,7 +162,7 @@ body {
 
 /* Center tooltip arrow styling */
 .tooltip.top.center::after {
-    bottom: -11px;
+    bottom: -12px;
     left: 50%;
     margin-left: -6px;
     border-color: var(--border-color) transparent transparent transparent;
@@ -165,7 +171,7 @@ body {
     border-color: #c00 transparent transparent transparent;
 }
 .tooltip.bottom.center::after {
-    top: -11px;
+    top: -12px;
     left: 50%;
     margin-left: -6px;
     border-color: transparent transparent var(--border-color) transparent;
@@ -198,6 +204,16 @@ select:focus {
     font-size: 14px;
     cursor: pointer;
     border: 1px solid var(--border-color);
+}
+
+a.btn {
+    appearance: auto;
+    display: inline-block;
+    text-align: center;
+    text-decoration: none;
+    text-transform: none;
+    color: buttontext;
+    background-color: buttonface;
 }
 
 table tbody td[aria-label="action"] {
@@ -328,6 +344,10 @@ nav.submenu-wrapper button.submenu-toggler {
     top: 100%;
     right: 0;
     border-width: 0 0 1px 1px;
+
+    & > span {
+        transition: transform ease 0.3s;
+    }
 }
 
 /* Loader styles */
@@ -349,6 +369,7 @@ nav.submenu-wrapper button.submenu-toggler {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+    outline: var(--gap-between-elemen) solid var(--white-color);
     z-index: 555;
 }
 .loader-wrapper .loader {
@@ -530,14 +551,18 @@ nav.submenu-wrapper button.submenu-toggler {
 }
 
 header.navbar {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    width: 100%;
+
     display: flex;
     align-items: center;
     padding: 40px 24px;
     background-color: var(--primary-color);
     color: var(--black-color);
     height: 60px;
+    gap: var(--gap-between-elemen);
     z-index: 550;
 }
 
@@ -610,7 +635,8 @@ header.navbar .navbar-right {
 }
 
 header.navbar .navbar-right .nav-item {
-    padding: 8px 16px;
+    padding: 4px 6px;
+    height: 36px;
     background-color: var(--hover-active-color);
     color: var(--black-color);
     font-size: 16px;
@@ -633,7 +659,7 @@ header.navbar .navbar-right .nav-item:has(> .user-info > .avatar) {
 
 header.navbar .navbar-right .nav-item .user-info {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: 20px;
 }
 
@@ -647,12 +673,19 @@ header.navbar .navbar-right .nav-item .user-info .user-name {
 }
 
 header.navbar .navbar-right .nav-item .user-info .avatar {
-    padding: 8px 8px;
+    padding: 4px 4px;
     width: auto;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid var(--border-color);
+    height: 64px;
+    border-radius: 5px;
+    border: 2px solid #c00;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    rotate: -5deg;
     cursor: pointer;
+    transition: rotate ease 0.3s;
+}
+
+header.navbar .navbar-right .nav-item .user-info .avatar:hover {
+    rotate: 0deg;
 }
 
 header.navbar .navbar-right .nav-item .user-info .avatar img {
@@ -729,7 +762,7 @@ main.main-content {
     height: auto;
     width: 100%;
     padding: 32px 16px;
-    margin: 50px auto 0;
+    margin: calc(50px + 60px + 40px - 20px) auto 0;
     transition: margin ease 0.5s;
 }
 
@@ -768,14 +801,29 @@ section.opening-section {
 }
 
 @media (max-width: 920px) {
-    header.navbar .navbar-right .nav-item:has(> .user-info) {
+    header.navbar .navbar-right .nav-item:not(> .user-info) {
         display: none;
+    }
+    header.navbar .navbar-right .nav-item .user-info .avatar {
+        display: none;
+    }
+    header.navbar .navbar-right {
+        flex-grow: 1;
+
+        & .nav-item:has(> .user-info) {
+            flex-grow: 1;
+        }
+
+        & .nav-item:last-child .user-info .user-name {
+            width: 100%;
+            text-align: right;
+        }
     }
 }
 
 @media (max-width: 768px) {
     header.navbar .navbar-center,
-    header.navbar .navbar-right {
+    header.navbar .navbar-right .nav-item:not(:last-child) {
         display: none;
     }
 }

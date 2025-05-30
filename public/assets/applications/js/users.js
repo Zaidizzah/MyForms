@@ -2,8 +2,9 @@
     "use strict";
 
     const panelFormEditUser = document.querySelector("#panel-form-edit-user");
-    const dataBaseURLEdit = document.querySelector("[data-base-url-edit]")
-        ?.dataset.baseUrlEdit;
+    const dataBaseURLEdit = document.querySelector(
+        "#tabel-user[data-base-url-edit]"
+    )?.dataset.baseUrlEdit;
 
     const btnEditUser = document.querySelectorAll(".edit-user-button");
     if (btnEditUser) {
@@ -15,12 +16,11 @@
                     "#panel-form-edit-user",
                     "beforeend"
                 );
-                console.log(dataBaseURLEdit, element.dataset.uuid);
 
                 document.querySelector("#tab-form-edit-user")?.click();
                 const endpoint = dataBaseURLEdit.replace(
                     ":uuid",
-                    element.dataset.uuid.replace(":", "")
+                    element?.dataset.uuid.replace(":", "")
                 );
                 const response = await fetch(endpoint, {
                     method: "GET",

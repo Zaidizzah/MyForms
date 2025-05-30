@@ -2,7 +2,7 @@
 
 @section('container')
     
-    <div class="tablist-container">
+    <div class="tablist-container" role="region" aria-label="Tablist">
         <div role="tablist" class="tablist">
             <button id="tab-users" role="tab" class="tab btn" data-tooltip="true" data-tooltip-title="Data-data user" aria-disabled="true" aria-selected="true" aria-controls="panel-users">
                 <img src="{{ asset("images/application icons/users plus.png") }}" class="tab-icon" loading="lazy" alt="Forms icon" /> Data users
@@ -43,13 +43,13 @@
                     <tbody>
                         @if ($users->isEmpty())
                             <tr>
-                                <td colspan="7" class="no-data">
+                                <th scope="row" colspan="7" class="no-data" align="center">
                                     @if (empty(request('search')) === FALSE)
                                         Tidak ada data yang sesuai dengan pencarian "{{ request('search') }}".
                                     @else
                                         Tidak ada data yang ditemukan.
                                     @endif
-                                </td>
+                                </th>
                             </tr>
                         @else
                             @foreach ($users as $key => $user)

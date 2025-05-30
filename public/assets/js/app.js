@@ -1,5 +1,5 @@
 // Initialize tooltipManager
-const tooltipManager = new TooltipManager();
+window.tooltipManager = new TooltipManager();
 tooltipManager.init();
 
 /**
@@ -7,7 +7,7 @@ tooltipManager.init();
  * @param {string} cName - The name of the cookie
  * @returns {string} The value of the cookie, or "" if not found
  */
-function GET_COOKIE(cName) {
+window.GET_COOKIE = (cName) => {
     let name = cName + "=";
     let decodedCookie = decodeURIComponent(document.cookie);
     let ca = decodedCookie.split(";");
@@ -21,11 +21,11 @@ function GET_COOKIE(cName) {
         }
     }
     return "";
-}
+};
 
-const XSRF_TOKEN = GET_COOKIE("XSRF-TOKEN"); // get the XSRF-TOKEN from cookie
-const CSRF_TOKEN = document.querySelector("meta[name='csrf_token']")?.content;
-const AUTOLOAD_DATE = new Date(); // get the current date
+window.XSRF_TOKEN = GET_COOKIE("XSRF-TOKEN"); // get the XSRF-TOKEN from cookie
+window.CSRF_TOKEN = document.querySelector("meta[name='csrf_token']")?.content;
+window.AUTOLOAD_DATE = new Date(); // get the current date
 
 /**
  * Appends a loader to the given selector
@@ -34,11 +34,11 @@ const AUTOLOAD_DATE = new Date(); // get the current date
  * @param {boolean} [centerStatic=false] - If true, the loader will be centered
  * @returns {string} The ID of the loader
  */
-function APPEND_LOADER(
+window.APPEND_LOADER = (
     appendedSelector,
     position = "beforeend",
     centerStatic = false
-) {
+) => {
     const ID = `loader-${AUTOLOAD_DATE.getTime()}`;
     const LOADER = `
         <div class="loader-wrapper ${
@@ -55,19 +55,19 @@ function APPEND_LOADER(
 
         return `#${ID}`;
     }
-}
+};
 
 /**
  * Removes the loader from the given selector
  * @param {string} removedSelector - The selector to remove the loader from
  * @returns {void}
  */
-function REMOVE_LOADER(removedSelector) {
+window.REMOVE_LOADER = (removedSelector) => {
     const removedElement = document.querySelector(removedSelector);
     if (removedElement) {
         removedElement.remove();
     }
-}
+};
 
 /**
  * Appends a flash message to the main content
@@ -78,12 +78,12 @@ function REMOVE_LOADER(removedSelector) {
  * @param {"beforebegin" | "afterbegin" | "beforeend" | "afterend"} [options.position="afterbegin"] - The position of the flash message relative to the main content
  * @returns {void}
  */
-function FLASH_MESSAGE({
+window.FLASH_MESSAGE = ({
     message,
     title = "Message",
     type = "success",
     position = "afterbegin",
-} = {}) {
+} = {}) => {
     const ID = `flash-message-${AUTOLOAD_DATE.getTime()}`;
     const FLASH_MESSAGE = `
         <!-- Flash message section -->
@@ -106,7 +106,7 @@ function FLASH_MESSAGE({
     document.querySelector(`#${ID}`)?.addEventListener("click", function () {
         this.remove();
     });
-}
+};
 
 (() => {
     "use strict";
@@ -131,27 +131,21 @@ function FLASH_MESSAGE({
     const submenuWrapper = document.querySelector(".submenu-wrapper");
 
     if (submenuWrapper) {
-        const submenuWrapperElementPosition = parseInt(
-            window.getComputedStyle(submenuWrapper).top,
-            10
-        );
-        const submenu = document.querySelector(".submenu");
-        const submenuToggle = document.querySelector(".submenu-toggler");
+        const submenu = document.querySelector(".submenu"),
+            submenuToggle = document.querySelector(".submenu-toggler");
 
         if (submenuToggle && submenu) {
             submenuToggle.addEventListener("click", function (e) {
                 if (!submenu.classList.contains("hide")) {
                     submenu.classList.add("hide");
-                    submenuWrapper.style.top = `${
-                        submenuWrapperElementPosition + 1 - submenu.offsetHeight
-                    }px`;
-                    mainContent.style.marginTop = `${
-                        mainContentElementPosition - submenu.offsetHeight
-                    }px`;
+                    submenuWrapper.querySelector(
+                        "button.submenu-toggler span"
+                    ).style.transform = "rotate(315deg)";
                 } else {
                     submenu.classList.remove("hide");
-                    submenuWrapper.style.top = `${submenuWrapperElementPosition}px`;
-                    mainContent.style.marginTop = `${submenu.offsetHeight}px`;
+                    submenuWrapper.querySelector(
+                        "button.submenu-toggler span"
+                    ).style.transform = "rotate(0deg)";
                 }
             });
         }
@@ -210,12 +204,12 @@ function FLASH_MESSAGE({
     });
 
     searchInput.addEventListener("blur", function () {
-        this.placeholder = "Type / to search";
+        this.placeholder = "Type CTRL + / to search";
     });
 
     // Adding focus to search element if user press the "/" button
     document.addEventListener("keyup", function (e) {
-        if (e.key === "/") {
+        if (e.ctrlKey && e.key === "/") {
             searchInput.focus();
         }
     });
