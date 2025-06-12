@@ -136,6 +136,7 @@
     <script type="text/javascript" src="{{ asset("assets/js/tablist.js") }}"></script>
     <script type="text/javascript" src="{{ asset("assets/js/errorNotification.js") }}"></script>
     <script type="text/javascript" src="{{ asset("assets/js/tooltipManager.js") }}"></script>
+    <script type="text/javascript" src="{{ asset("assets/js/tableColumnReorder.js") }}"></script>
     <script type="text/javascript" src="{{ asset("assets/js/app.js") }}"></script>
     @generate_tags('script', $javascript)
   </body>

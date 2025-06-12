@@ -5,7 +5,7 @@
 table {
     border-collapse: collapse;
     width: max(65rem, 100%);
-    table-layout: fixed;
+    table-layout: auto;
 }
 
 th,
@@ -17,6 +17,21 @@ caption {
     margin-block: 0.75rem;
 }
 
+table tbody td[aria-label="action"] {
+    display: flex;
+    gap: 5px;
+    justify-content: flex-end;
+    align-items: center;
+    flex-wrap: nowrap;
+
+    & a,
+    & button {
+        text-wrap: nowrap;
+        word-break: keep-all;
+        box-sizing: border-box;
+    }
+}
+
 thead th:not(:first-child),
 td {
     text-align: end;
@@ -24,12 +39,12 @@ td {
 
 thead {
     border-block-end: 2px solid;
-    background: #ffff;
+    background-color: var(--grey-color);
 }
 
 tfoot {
     border-block: 2px solid;
-    background: #f5f5f5;
+    background-color: var(--white-1-color);
 }
 
 th,
@@ -37,53 +52,56 @@ td {
     border: 1px solid #d3d3d3;
     padding: 0.25rem 0.75rem;
     vertical-align: baseline;
-}
-
-th:first-child {
-    position: sticky;
-    inset-inline-start: 0;
-    border-inline-end: none;
-    z-index: 548;
+    box-sizing: border-box;
 }
 
 tbody th {
-    background: #ffff;
+    background-color: var(--white-color);
 }
 
 thead th,
 tfoot th {
-    background: #f5f5f5;
+    background-color: var(--white-1-color);
 }
 
 thead th {
+    position: relative;
     vertical-align: bottom;
+    user-select: none;
+    cursor: grab;
+    transition: all ease 0.3s;
+
+    &::after {
+        content: "";
+    }
 }
 
 td:first-of-type,
 :where(thead, tfoot) th:nth-child(2) {
-    border-inline-start: none;
-    z-index: 548;
+    border-inline-start: 1;
 }
 
-th:first-of-type {
-    width: 10rem;
-    z-index: 548;
+tbody tr td:last-of-type {
+    border-inline-end: 1;
+    border-inline-start: 0;
+    border-block-start: 1;
 }
 
-th:first-child::after {
-    content: "";
-    position: absolute;
-    inset-block-start: 0;
-    inset-inline-end: 0;
-    width: 1px;
-    height: 100%;
-    background: #d3d3d3;
-    z-index: 548;
+tbody tr:first-child td:last-child {
+    border-block-start: 0;
 }
 
-tr:hover,
-tr.active {
-    background: #f5f5f5;
+tbody tr:last-child td:last-child {
+    border-block-end: 1;
+}
+
+tbody tr:not(:last-child) td:last-child {
+    border-block-end: 0;
+}
+
+tbody tr:hover,
+tbody tr.active {
+    background-color: var(--white-1-color);
 }
 
 tbody tr th,
@@ -94,6 +112,149 @@ tbody tr td {
 td.no-data {
     text-align: start;
     padding-inline-start: 0.75rem;
+}
+
+table thead th.dragging {
+    cursor: grabbing;
+    background: #e3f2fd;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    border: 2px dotted var(--border-color);
+}
+
+table thead th.drag-over {
+    background: #fff3e0;
+}
+
+table thead th .drag-indicator {
+    position: absolute;
+    top: -10px;
+    left: -8px;
+    width: 12px;
+    height: 12px;
+    background: var(--border-color);
+    display: none;
+    z-index: 549;
+
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 6px solid transparent;
+        border-right: 6px solid transparent;
+        border-top: 8px solid var(--border-color);
+    }
+}
+
+table thead th.drag-over .drag-indicator {
+    display: block;
+}
+
+table thead th[data-draggable="false"] {
+    cursor: not-allowed;
+    opacity: 0.6;
+    background-color: var(--white-color) !important;
+}
+
+.drag-ghost {
+    opacity: 0.5;
+}
+
+table + .orderable-status {
+    position: sticky;
+    bottom: 0;
+    left: var(--gap-between-elemen);
+}
+
+table + .orderable-status span.orderable-status-text {
+    color: var(--blue);
+    margin-right: 0.5rem;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover {
+        color: var(--hover-blue);
+        text-decoration: underline;
+    }
+
+    &::before {
+        content: "[";
+        color: var(--black-color);
+    }
+
+    &::after {
+        content: "]";
+        color: var(--black-color);
+    }
+}
+
+.toggler-visibility {
+    position: absolute;
+    bottom: 0;
+    right: auto;
+    transform: translateX(50%);
+    border: 2px solid var(--border-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    display: none;
+
+    z-index: 550;
+}
+
+.toggler-visibility.show {
+    display: block;
+}
+
+.toggler-visibility-wrapper {
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: var(--white-2-color);
+    transition: background-color 0.2s ease;
+    border-bottom: 1px solid #d3d3d3;
+    cursor: pointer;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.toggler-visibility-wrapper:hover {
+    background-color: #f8f9fa;
+}
+
+.toggler-visibility-wrapper.show-all {
+    background: #e3f2fd;
+    color: #1976d2;
+    font-weight: 500;
+}
+
+.toggler-visibility-wrapper.show-all:hover {
+    background: #bbdefb;
+}
+
+.toggler-visibility-wrapper input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    cursor: pointer;
+    accent-color: #007bff;
+}
+
+.toggler-visibility-wrapper label {
+    cursor: pointer;
+    font-size: 14px;
+    color: #495057;
+    margin: 0;
+    flex: 1;
+    user-select: none;
+}
+
+.column-hidden {
+    display: none;
 }
 
 /* For the shadow: https://adrianroselli.com/2020/01/fixed-table-headers.html */

@@ -23,7 +23,8 @@
 
             <form class="search-wrapper" action="{{ route("user.index") }}" method="get">
                 <input type="search" name="search" class="input" id="search-user" role="search" aria-label="Cari data-data pengguna" aria-placeholder="Cari data-data pengguna" aria-required="false" placeholder="Cari data-data pengguna..." value="{{ request('search') }}" />
-                <button type="submit" role="button" class="btn" data-tooltip="true" data-tooltip-title="Cari data-data pengguna berdasarkan kata kunci nama, email, ataupun role" aria-label="Cari data-data pengguna">Cari</button>
+                <button type="submit" role="button" class="btn" data-tooltip="true" data-tooltip-title="Cari data-data pengguna berdasarkan kata kunci nama, email, ataupun role">Cari</button>
+                <button type="button" role="button" class="btn btn-reset" id="reset-table-order" data-tooltip="true" data-tooltip-title="Reset urutan kolom tabel" aria-controls="tabel-user">Reset</button>
             </form>
 
             <div class="table-wrapper" tabindex="0">
@@ -31,13 +32,34 @@
                     <caption id="tabel-user-caption">Data-data pengguna aplikasi MYFORMS</caption>
                     <thead>
                         <tr>
-                            <th scope="col">No</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Role</th>
-                            <th scope="col">Bergabung pada</th>
-                            <th scope="col">Terakhir diubah</th>
-                            <th scope="col">Aksi</th>
+                            <th scope="col" data-original-index="0">
+                                <div class="drag-indicator" aria-hidden="true"></div>
+                                No
+                            </th>
+                            <th scope="col" data-original-index="1">
+                                <div class="drag-indicator" aria-hidden="true"></div>
+                                Name
+                            </th>
+                            <th scope="col" data-original-index="2" data-draggable="false">
+                                <div class="drag-indicator" aria-hidden="true"></div>
+                                Email
+                            </th>
+                            <th scope="col" data-original-index="3">
+                                <div class="drag-indicator" aria-hidden="true"></div>
+                                Role
+                            </th>
+                            <th scope="col" data-original-index="4">
+                                <div class="drag-indicator" aria-hidden="true"></div>
+                                Bergabung pada
+                            </th>
+                            <th scope="col" data-original-index="5">
+                                <div class="drag-indicator" aria-hidden="true"></div>
+                                Terakhir diubah
+                            </th>
+                            <th scope="col" data-original-index="6">
+                                <div class="drag-indicator" aria-hidden="true"></div>
+                                Aksi
+                            </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -107,8 +129,8 @@
         
         <div id="panel-form-add-user" role="tabpanel" class="tabpanel" aria-hidden="true" aria-labelledby="tab-form-add-user" aria-describedby="panel-form-add-user-title">
             <div class="panel-title" id="panel-form-add-user-title">
-                <h1>Formulir tambah user</h1>
-                <p>Formulir ini digunakan untuk menambahkan data user baru.</p>
+                <h1>Formulir tambah pengguna</h1>
+                <p>Formulir ini digunakan untuk menambahkan data pengguna baru.</p>
             </div>
 
             <form action="{{ route("user.store") }}" method="post">
@@ -143,8 +165,8 @@
         
         <div id="panel-form-edit-user" role="tabpanel" class="tabpanel" aria-hidden="true" aria-labelledby="tab-form-edit-user">
             <div class="panel-title" id="panel-form-edit-user-title">
-                <h1>Formulir edit user</h1>
-                <p>Formulir ini digunakan untuk mengedit atau mengubah data user yang ada.</p>
+                <h1>Formulir edit pengguna</h1>
+                <p>Formulir ini digunakan untuk mengedit atau mengubah data pengguna yang ada.</p>
             </div>
 
         </div>

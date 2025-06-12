@@ -27,6 +27,39 @@ window.XSRF_TOKEN = GET_COOKIE("XSRF-TOKEN"); // get the XSRF-TOKEN from cookie
 window.CSRF_TOKEN = document.querySelector("meta[name='csrf_token']")?.content;
 window.AUTOLOAD_DATE = new Date(); // get the current date
 
+window.CREATE_STATUS_ELEMENT = (text, timeout) => {
+    // Delete existing status element and setTimeout
+    REMOVE_STATUS_ELEMENT("status");
+
+    const statusElement = document.createElement("div");
+    statusElement.classList.add("upload-status");
+    statusElement.textContent = text;
+    statusElement.ariaLive = "polite";
+    statusElement.ariaAtomic = "true";
+    statusElement.role = "status";
+    statusElement.id = `status`;
+
+    // Append the status element to the body
+    document.body?.appendChild(statusElement);
+
+    // Set a timeout to remove the status element after {timeout} default is 3 seconds
+    if (timeout) {
+        setTimeout(() => {
+            REMOVE_STATUS_ELEMENT("status");
+        }, timeout);
+    } else {
+        // Returning the status element id
+        return statusElement.id;
+    }
+};
+
+window.REMOVE_STATUS_ELEMENT = function (id) {
+    const statusElement = document.getElementById(id);
+    if (statusElement) {
+        statusElement.remove();
+    }
+};
+
 /**
  * Appends a loader to the given selector
  * @param {string} appendedSelector - The selector to append the loader to

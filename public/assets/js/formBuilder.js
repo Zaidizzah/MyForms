@@ -1,10 +1,30 @@
 class FormBuilder {
-    constructor({ url = null, method = "POST" }) {
+    /**
+     * Constructor for FormBuilder
+     *
+     * @param {Object} config - Configuration object
+     * @param {string} [config.url=null] - URL to send request to
+     * @param {string} [config.method="CREATE"] - HTTP Method to use ('CREATE' => 'POST', and 'EDIT' => 'UPDATE')
+     * @param {Object} [config.FileUploadManagerConfig] - Configuration object
+     *     for FileUploadManager
+     * @param {string} [config.FileUploadManagerConfig.uploadUrl=""] - URL to
+     *     upload files to
+     * @param {string} [config.FileUploadManagerConfig.deleteUrl=""] - URL to
+     *     delete files from
+     */
+    constructor({
+        url = null,
+        method = "CREATE",
+        FileUploadManagerConfig = {
+            uploadUrl: "",
+            deleteUrl: "",
+        },
+    }) {
         this.url = url;
         this.method = method;
         this.questions = [];
         this.selectedQuestionType = null;
-        this.fileManager = new FileUploadManager();
+        this.fileManager = new FileUploadManager(FileUploadManagerConfig);
         this.tooltipManager = window.tooltipManager;
         this.FormBuilderElement =
             document.getElementById("form-builder") || null;
@@ -22,7 +42,10 @@ class FormBuilder {
      */
     init() {
         this.bindEvents();
-        this.render();
+        // If question image doesn't exist or not object value return;
+
+        // Set status if form is already modified
+        CREATE_STATUS_ELEMENT("Formulir telah siap untuk dimodifikasi", 3000);
     }
 
     /**
@@ -164,7 +187,7 @@ class FormBuilder {
             );
             this.questions.push(question);
             // set anchor item
-            this.setAchorQuestions(question.sort_order, question.id);
+            this.setAchorQuestions(question.sort_order);
 
             this.render();
         } catch (error) {
@@ -173,6 +196,9 @@ class FormBuilder {
             this.questionCounter({
                 added: false,
             }); // Rollback counter
+
+            // rollback anchor item
+            this.deleteAnchorQuestions(false);
         }
     }
 
@@ -212,16 +238,26 @@ class FormBuilder {
         }
 
         try {
-            const base64 = await this.fileManager.uploadFile(file);
+            // Upload file using new method
+            const result = await this.fileManager.uploadFile(file, "question");
+            console.log(result);
+
             const question = this.questions.find((q) => q.id === questionId);
             if (question) {
-                question.image_url = base64;
-                question.image_file = file;
+                // Check if result is an object
+                if (typeof result !== "object") {
+                    throw new Error("Invalid file format");
+                }
+                // Store both URL and file info
+                question.image = result;
+
+                console.log(question);
+
                 this.render();
             }
         } catch (error) {
             console.error("Error uploading question image:", error);
-            alert("Gagal mengupload file: " + error.message);
+            alert("Gagal mengupload gambar: " + error.message);
         }
     }
 
@@ -241,16 +277,89 @@ class FormBuilder {
         }
 
         try {
-            const base64 = await this.fileManager.uploadFile(file);
+            // Upload file using new method
+            const result = await this.fileManager.uploadFile(file, "option");
+            console.log(result);
+
             const question = this.questions.find((q) => q.id === questionId);
             if (question && question.options[optionIndex]) {
-                question.options[optionIndex].image_url = base64;
-                question.options[optionIndex].image_file = file;
+                // Check if result is an object
+                if (typeof result !== "object") {
+                    throw new Error("Invalid file format");
+                }
+                // Store both URL and file info
+                question.options[optionIndex].image = result;
+
                 this.render();
             }
         } catch (error) {
             console.error("Error uploading option image:", error);
-            alert("Gagal mengupload file: " + error.message);
+            alert("Gagal mengupload gambar: " + error.message);
+        }
+    }
+
+    /**
+     * Handles deletion of question image
+     * @param {number} questionId - Question ID
+     */
+    async handleQuestionImageDelete(questionId) {
+        const question = this.questions.find((q) => q.id === questionId);
+        // If question image doesn't exist or not object value return
+        if (!question) return;
+        if (typeof question.image !== "object" || !question.image) return;
+
+        try {
+            // Delete from server if it's not a blob URL
+            if (!question.image.url.startsWith("blob:")) {
+                await this.fileManager.deleteFile(question.image.id);
+            } else {
+                // Revoke blob URL
+                this.fileManager.revokePreviewUrl(question.image.url);
+            }
+
+            // Clear image data
+            question.image = null;
+
+            this.render();
+        } catch (error) {
+            console.error("Error deleting question image:", error);
+            alert("Gagal menghapus gambar");
+        }
+    }
+
+    /**
+     * Handles deletion of option image
+     * @param {number} questionId - Question ID
+     * @param {number} optionIndex - Option index
+     */
+    async handleOptionImageDelete(questionId, optionIndex) {
+        const question = this.questions.find((q) => q.id === questionId);
+        // If question image doesn't exist or not object value return
+        if (!question || !question.options[optionIndex]) return;
+        if (
+            typeof question.options[optionIndex].image !== "object" ||
+            !question.options[optionIndex].image
+        )
+            return;
+
+        try {
+            const option = question.options[optionIndex];
+
+            // Delete from server if it's not a blob URL
+            if (!option.image.url.startsWith("blob:")) {
+                await this.fileManager.deleteFile(option.image.id);
+            } else {
+                // Revoke blob URL
+                this.fileManager.revokePreviewUrl(option.image.url);
+            }
+
+            // Clear image data
+            option.image = null;
+
+            this.render();
+        } catch (error) {
+            console.error("Error deleting option image:", error);
+            alert("Gagal menghapus gambar");
         }
     }
 
@@ -263,6 +372,8 @@ class FormBuilder {
             const question = this.questions.find((q) => q.id === questionId);
             if (question) {
                 question.addOption();
+                console.log(question);
+
                 this.render();
             }
         } catch (error) {
@@ -297,6 +408,11 @@ class FormBuilder {
         try {
             const question = this.questions.find((q) => q.id === questionId);
             if (question) {
+                // Delete associated image if exists
+                if (question.options[optionIndex]?.image.url) {
+                    this.handleOptionImageDelete(questionId, optionIndex);
+                }
+
                 question.removeOption(optionIndex);
                 this.render();
             }
@@ -312,18 +428,43 @@ class FormBuilder {
     deleteQuestion(id) {
         try {
             if (confirm("Yakin ingin menghapus pertanyaan ini?")) {
+                const question = this.questions.find((q) => q.id === id);
+
+                // Delete associated images
+                if (question) {
+                    // Delete question image
+                    if (question.image.url) {
+                        this.handleQuestionImageDelete(id);
+                    }
+
+                    // Delete option images
+                    if (question.options) {
+                        question.options.forEach((option, index) => {
+                            if (option.image.url) {
+                                this.handleOptionImageDelete(id, index);
+                            }
+                        });
+                    }
+                }
+
                 this.questionCounter({
                     added: false,
                 });
 
+                // delete anchor
+                this.deleteAnchorQuestions(false);
                 this.questions = this.questions.filter((q) => q.id !== id);
+
+                // re-sort question
+                this.questions.sort((a, b) => a.sort_order - b.sort_order);
+                this.questions.forEach((q, index) => {
+                    q.sort_order = index + 1;
+                });
+
                 this.render();
             }
         } catch (error) {
             console.error("Error deleting question:", error);
-            this.questionCounter({
-                added: true,
-            }); // Rollback counter
         }
     }
 
@@ -408,24 +549,38 @@ class FormBuilder {
                                     📷 Upload Gambar
                                 </button>
                                 ${
-                                    option.image_url
+                                    question.options[index].image &&
+                                    typeof question.options[index].image ===
+                                        "object" &&
+                                    question.options[index].image.url &&
+                                    typeof question.options[index].image.url ===
+                                        "string" &&
+                                    question.options[index].image.url.trim() !==
+                                        ""
                                         ? `
                                     <div class="image-preview">
-                                        <img src="${option.image_url}" 
-                                             style="max-width: 100px; max-height: 75px; border-radius: 4px; object-fit: cover;" data-tooltip="true" data-tooltip-title="Gambar Pilihan ${
+                                        <img src="${option.image.url}" 
+                                             style="max-width: 100px; max-height: 75px; border-radius: 4px; object-fit: cover;" 
+                                             data-tooltip="true" 
+                                             data-tooltip-title="Gambar Pilihan ${
                                                  index + 1
-                                             }" loading="lazy" alt="Gambar Pilihan ${
-                                              index + 1
-                                          }">
+                                             }${
+                                              option.image.fileName
+                                                  ? " - " +
+                                                    option.image.fileName
+                                                  : ""
+                                          }" 
+                                             loading="lazy" 
+                                             alt="Gambar Pilihan ${index + 1}">
                                         <button type="button" 
                                                 role="button"
                                                 tabindex="0"
                                                 class="btn cancel-btn"
                                                 data-tooltip="true"
                                                 data-tooltip-title="Hapus Gambar"
-                                                onclick="formBuilder.updateOption(${
+                                                onclick="formBuilder.handleOptionImageDelete(${
                                                     question.id
-                                                }, ${index}, 'image_url', ''); formBuilder.render()">
+                                                }, ${index})">
                                             × Hapus
                                         </button>
                                     </div>
@@ -527,7 +682,7 @@ class FormBuilder {
                                 <div class="image-upload-section" style="margin-top: 10px;">
                                     <input type="file" 
                                            class="file-input"
-                                           accept="image/*"
+                                           accept="image/jpeg, image/jpg, image/png, image/gif, image/webp"
                                            onchange="formBuilder.handleQuestionImageUpload(${
                                                question.id
                                            }, this.files[0])"
@@ -547,24 +702,36 @@ class FormBuilder {
                                         📷 Upload Gambar Pertanyaan
                                     </button>
                                     ${
-                                        question.image_url
+                                        question.image &&
+                                        typeof question.image === "object" &&
+                                        question.image.url &&
+                                        typeof question.image.url ===
+                                            "string" &&
+                                        question.image.url.trim() !== ""
                                             ? `
                                         <div class="image-preview" style="margin-top: 10px;">
-                                            <img src="${question.image_url}" 
-                                                 style="max-width: 200px; max-height: 150px; border-radius: 8px; object-fit: cover;" data-tooltip="true" data-tooltip-title="Gambar Pertanyaan ${
+                                            <img src="${question.image.url}" 
+                                                 style="max-width: 200px; max-height: 150px; border-radius: 8px; object-fit: cover;" 
+                                                 data-tooltip="true" 
+                                                 data-tooltip-title="Gambar Pertanyaan ${
                                                      index + 1
-                                                 }" loading="lazy" alt="${
-                                                  question.label
-                                              }">
+                                                 }${
+                                                  question.image.fileName
+                                                      ? " - " +
+                                                        question.image.fileName
+                                                      : ""
+                                              }" 
+                                                 loading="lazy" 
+                                                 alt="${question.label}">
                                             <button type="button" 
                                                     role="button"
                                                     tabindex="0"
                                                     class="btn cancel-btn"
                                                     data-tooltip="true"
                                                     data-tooltip-title="Hapus Gambar"
-                                                    onclick="formBuilder.updateQuestion(${
+                                                    onclick="formBuilder.handleQuestionImageDelete(${
                                                         question.id
-                                                    }, 'image_url', ''); formBuilder.render()">
+                                                    })">
                                                 × Hapus Gambar
                                             </button>
                                         </div>
@@ -733,25 +900,41 @@ class FormBuilder {
             ?.replaceWith(counterElement);
     }
 
-    setAchorQuestions(questionNumber, questionId) {
+    setAchorQuestions(questionNumber) {
         const anchorItem = document.createElement("div");
         anchorItem.className = "anchor-item";
         anchorItem.role = "button";
-        anchorItem.id = "anchor-item-question-${id}";
         anchorItem.setAttribute(
             "aria-controls",
-            `question-item[data-id='${questionId}']`
+            `question-item:nth-child(${questionNumber})`
         );
-        anchorItem.ariaExpanded = "false";
         anchorItem.ariaLabel = `Pertanyaan ke ${questionNumber}`;
         anchorItem.dataset.tooltip = "true";
         anchorItem.dataset.tooltipTitle = `Pertanyaan ke ${questionNumber}`;
         anchorItem.textContent = `Pertanyaan ke ${questionNumber}`;
 
-        const anchorItemLastElement = document.querySelector(
-            ".lists-anchor .anchor-item:last-child"
+        const anchorScrollElement = document.querySelector(
+            ".lists-anchor .lists-scroll"
         );
-        anchorItemLastElement.after(anchorItem); // Add anchor item after the last anchor item
+        anchorScrollElement.appendChild(anchorItem); // Add anchor item after the last anchor item
+    }
+
+    deleteAnchorQuestions(isReset) {
+        if (isReset === false) {
+            const anchorElement = document.querySelector(
+                `.anchor-item:last-child`
+            );
+
+            // delete anchor element
+            anchorElement?.remove();
+        } else {
+            const anchorElements = document.querySelectorAll(
+                ".lists-anchor .anchor-item"
+            );
+            anchorElements.forEach((anchorElement) => {
+                anchorElement.remove();
+            });
+        }
     }
 
     /**
@@ -801,11 +984,8 @@ class FormBuilder {
 
         this.saveInProgress = true;
 
-        const loader = window.APPEND_LOADER(
-            ".save-form-btn",
-            "afterbegin",
-            true
-        );
+        const loader = APPEND_LOADER(".save-form-btn", "afterbegin", true);
+        const statusElementId = CREATE_STATUS_ELEMENT("Menyimpan formulir");
         try {
             const validation = this.validateForm();
             if (!validation.valid) {
@@ -841,27 +1021,16 @@ class FormBuilder {
 
             const data = await response.json();
 
-            // Simulate saving with UI feedback
-            const saveBtn = document.querySelector(".save-form-btn");
-            if (saveBtn) {
-                const originalText = saveBtn.innerHTML;
-                saveBtn.innerHTML = "⏳ Menyimpan...";
-                saveBtn.disabled = true;
-
-                alert("✅ Formulir berhasil disimpan!");
-                saveBtn.innerHTML = originalText;
-                saveBtn.disabled = false;
-
-                if (confirm("Ingin membuat formulir baru?")) {
-                    this.resetForm();
-                }
+            if (confirm("Ingin membuat formulir baru?")) {
+                this.resetForm();
             }
         } catch (error) {
             console.error("Error saving form:", error);
             alert("Terjadi kesalahan saat menyimpan formulir");
         } finally {
             this.saveInProgress = false;
-            window.REMOVE_LOADER(loader);
+            REMOVE_LOADER(loader);
+            REMOVE_STATUS_ELEMENT(statusElementId);
         }
     }
 
@@ -869,6 +1038,9 @@ class FormBuilder {
      * Resets the form to initial state
      */
     resetForm() {
+        const statusElementId = CREATE_STATUS_ELEMENT(
+            "Menghapus atau memuat ulang formulir baru"
+        );
         try {
             // Reset form fields
             const formTitle = document.getElementById("form-title");
@@ -896,6 +1068,9 @@ class FormBuilder {
             // Reset flags
             this.saveInProgress = false;
 
+            // delete anchor questions
+            this.deleteAnchorQuestions(true);
+
             this.render();
             this.questionCounter({
                 reset: true,
@@ -903,6 +1078,8 @@ class FormBuilder {
         } catch (error) {
             console.error("Error resetting form:", error);
             alert("Terjadi kesalahan saat mereset formulir");
+        } finally {
+            REMOVE_STATUS_ELEMENT(statusElementId);
         }
     }
 }

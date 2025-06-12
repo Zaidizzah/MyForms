@@ -3,8 +3,7 @@ class QuestionManager {
         this.id = Date.now() + Math.random();
         this.type = type;
         this.label = "";
-        this.image_url = "";
-        this.image_file = null;
+        this.image = null;
         this.is_required = false;
         this.score = 0;
         this.sort_order = counter;
@@ -27,8 +26,7 @@ class QuestionManager {
         const option = {
             label: "",
             value: "",
-            image_url: "",
-            image_file: null,
+            image: null,
             is_correct: false,
             sort_order: this.options.length,
         };

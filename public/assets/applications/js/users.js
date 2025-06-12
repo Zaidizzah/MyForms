@@ -1,6 +1,14 @@
 (() => {
     "use strict";
 
+    // Initialize table reorder
+    const tableReorder = new TableColumnReorder("#tabel-user", {
+        resetButtonSelector: "#reset-table-order",
+    });
+
+    // Attach tableReorder to window object
+    window.tableReorder = tableReorder;
+
     const panelFormEditUser = document.querySelector("#panel-form-edit-user");
     const dataBaseURLEdit = document.querySelector(
         "#tabel-user[data-base-url-edit]"

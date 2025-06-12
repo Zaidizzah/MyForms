@@ -24,6 +24,7 @@ Route::delete('/users/{uuid}', [UserController::class, 'destroy'])->name('user.d
 
 Route::get('/forms', [FormsController::class, 'index'])->name('form.index');
 Route::get('/forms/create', [FormsController::class, 'create'])->name('form.create');
+Route::post('/forms', [FormsController::class, 'store'])->name('form.store');
 Route::get('/forms/{uuid}', [FormsController::class, 'show'])->name('form.show');
 Route::put('/forms/{uuid}', [FormsController::class, 'update'])->name('form.update');
 Route::delete('/forms/{uuid}', [FormsController::class, 'destroy'])->name('form.destroy');

@@ -2,7 +2,20 @@
 
 @section('container')
 
-    <div class="container" id="form-builder" role="region" data-base-url="{{ route("api.form.store") }}" aria-labelledby="form-builder-header" aria-describedby="form-builder-body">
+    {{-- <form action="{{ route("api.file.upload") }}" method="post" enctype="multipart/form-data">
+        @csrf
+
+        <input type="file" class="input" name="file">
+        <select class="input" name="context">
+            <option value="question">Question</option>
+            <option value="option">Option</option>
+        </select>
+        <input type="datetime" class="input" name="timestamp" value="{{ now()->timestamp }}" readonly>
+
+        <button type="submit" role="button" class="btn" data-tooltip="true" data-tooltip-title="Upload file">Upload</button>
+    </form> --}}
+
+    <div class="container" id="form-builder" role="region" data-base-url="{{ route("api.form.store") }}" data-upload-url="{{ route("api.file.upload") }}" data-delete-url="{{ route("api.file.delete") }}" aria-labelledby="form-builder-header" aria-describedby="form-builder-body">
         <!-- Question Counter -->
         <span id="question-counter" class="question-counter" role="status" aria-live="polite" aria-atomic="true" aria-label="Jumlah pertanyaan"
         data-tooltip="true" data-tooltip-title="Jumlah pertanyaan yang ada yaitu 0">Jumlah pertanyaan: 0</span></span>
@@ -12,8 +25,7 @@
             <!-- Anchor item toggler -->
             <button type="button" role="button" class="lists-anchor-toggler" data-tooltip="true" data-tooltip-title="Toggle tab list anchor" aria-label="Button to toggle visibility of tab list anchor"><span></span></button>
 
-            <div class="lists-scroll" role="scrollbar" aria-label="Scroller for Tab List Anchor for Form Builder">
-                <div class="anchor-item" role="button" id="anchor-item-1" aria-controls="form-builder-content-details" data-tooltip="true" data-tooltip-title="Pengaturan formulir">Formulir</div>
+            <div class="lists-scroll" role="scrollbar" aria-label="Scroller for Tab List Anchor for Form Builder" aria-expanded="false">
                 <!-- More tab list anchor items is added here -->   
             </div>
         </div>

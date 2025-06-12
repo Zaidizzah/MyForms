@@ -5,6 +5,10 @@
     window.formBuilder = new FormBuilder({
         url: document.querySelector("#form-builder[data-base-url]")?.dataset
             .baseUrl,
+        FileUploadManagerConfig: {
+            uploadUrl: formBuilderElement?.dataset.uploadUrl,
+            deleteUrl: formBuilderElement?.dataset.deleteUrl,
+        },
     });
 
     const listsAnchorElement = document.querySelector("#lists-anchor");
@@ -15,28 +19,6 @@
     if (listsAnchorElement && listsAnchorTogglerElement) {
         listsAnchorTogglerElement.addEventListener("click", () => {
             listsAnchorElement.classList.toggle("active");
-        });
-
-        const existingAnchorItems =
-            listsAnchorElement.querySelectorAll(".anchor-item");
-
-        // Add event listener to existing anchor items
-        existingAnchorItems.forEach((anchorItem) => {
-            anchorItem.addEventListener("click", () => {
-                const anchorControlElement =
-                    anchorItem.getAttribute("aria-controls") || "";
-                const anchorElement = document.querySelector(
-                    `.${anchorControlElement}`
-                );
-
-                // Set to slidding into anchor element
-                anchorElement?.scrollIntoView({
-                    behavior: "smooth",
-                    block: anchorItem.classList.contains("form-builder-sidebar")
-                        ? "start"
-                        : "center",
-                });
-            });
         });
 
         const observer = new MutationObserver((mutationsList) => {
@@ -58,11 +40,7 @@
                                 // Set to slidding into anchor element
                                 anchorElement?.scrollIntoView({
                                     behavior: "smooth",
-                                    block: node.classList.contains(
-                                        "form-builder-sidebar"
-                                    )
-                                        ? "start"
-                                        : "center",
+                                    block: "center",
                                 });
                             });
                         }
