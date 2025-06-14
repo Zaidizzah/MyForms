@@ -1,276 +1,3 @@
-class ColumnVisibilityToggler {
-    constructor(tableSelector) {
-        this.table = document.querySelector(tableSelector);
-        this.columnStates = new Map();
-        this.init();
-    }
-
-    init() {
-        this.setupToggleVisibility();
-        this.initializeColumnStates();
-    }
-
-    setupToggleVisibility() {
-        const toggler = document.querySelector(".toggler-visibility");
-        if (!toggler) return;
-
-        const trigger = toggler.querySelector(".toggler-visibility-trigger");
-        const dropdown = toggler.querySelector(".toggler-visibility-dropdown");
-
-        // Toggle dropdown visibility
-        trigger.addEventListener("click", (e) => {
-            e.stopPropagation();
-            dropdown.classList.toggle("show");
-            trigger.classList.toggle("active");
-        });
-
-        // Close dropdown when clicking outside
-        document.addEventListener("click", (e) => {
-            if (!toggler.contains(e.target)) {
-                dropdown.classList.remove("show");
-                trigger.classList.remove("active");
-            }
-        });
-
-        this.generateCheckboxes(dropdown);
-    }
-
-    generateCheckboxes(dropdown) {
-        // Add "Show All" option
-        const showAllWrapper = document.createElement("div");
-        showAllWrapper.classList.add("toggler-visibility-wrapper", "show-all");
-        showAllWrapper.role = "button";
-        showAllWrapper.ariaLabel =
-            "Toggle visibility of sortable status to original visibility";
-        showAllWrapper.textContent = "Tampilkan semua";
-        showAllWrapper.addEventListener("click", () => {
-            this.showAllColumns();
-        });
-        dropdown.appendChild(showAllWrapper);
-
-        // Get column data from thead
-        const columnHeaders = this.table.querySelectorAll("thead th");
-        columnHeaders.forEach((column, index) => {
-            if (column.dataset.draggable !== "false") {
-                // Create checkbox wrapper
-                const checkboxWrapper = document.createElement("div");
-                checkboxWrapper.classList.add("toggler-visibility-wrapper");
-                checkboxWrapper.role = "group";
-                checkboxWrapper.ariaLabel = `Toggle visibility of sortable status for column ${column.textContent.trim()}`;
-
-                // Create checkbox
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.id = `toggle-orderable-status-${index}`;
-                checkbox.checked = true;
-                checkbox.ariaRequired = "false";
-
-                // Store initial state
-                this.columnStates.set(index, true);
-
-                checkbox.addEventListener("change", () => {
-                    this.toggleColumnVisibility(index, checkbox.checked);
-                });
-
-                // Create label
-                const label = document.createElement("label");
-                label.htmlFor = `toggle-orderable-status-${index}`;
-                label.textContent = column.textContent.trim();
-
-                // Append elements
-                checkboxWrapper.appendChild(checkbox);
-                checkboxWrapper.appendChild(label);
-                dropdown.appendChild(checkboxWrapper);
-
-                // Make wrapper clickable
-                checkboxWrapper.addEventListener("click", (e) => {
-                    if (e.target !== checkbox) {
-                        checkbox.checked = !checkbox.checked;
-                        checkbox.dispatchEvent(new Event("change"));
-                    }
-                });
-            }
-        });
-    }
-
-    initializeColumnStates() {
-        const columnHeaders = this.table.querySelectorAll("thead th");
-        columnHeaders.forEach((column, index) => {
-            if (column.dataset.draggable !== "false") {
-                this.columnStates.set(index, true);
-            }
-        });
-    }
-
-    toggleColumnVisibility(columnIndex, isVisible) {
-        this.columnStates.set(columnIndex, isVisible);
-
-        // Toggle header visibility
-        const headerCell = this.table.querySelector(
-            `thead th:nth-child(${columnIndex + 1})`
-        );
-        if (headerCell) {
-            if (isVisible) {
-                headerCell.classList.remove("column-hidden");
-            } else {
-                headerCell.classList.add("column-hidden");
-            }
-        }
-
-        // Toggle body cells visibility
-        const bodyCells = this.table.querySelectorAll(
-            `tbody td:nth-child(${columnIndex + 1})`
-        );
-        bodyCells.forEach((cell) => {
-            if (isVisible) {
-                cell.classList.remove("column-hidden");
-            } else {
-                cell.classList.add("column-hidden");
-            }
-        });
-
-        this.updateTriggerText();
-    }
-
-    showAllColumns() {
-        // Reset all checkboxes to checked
-        const checkboxes = document.querySelectorAll(
-            '.toggler-visibility input[type="checkbox"]'
-        );
-        checkboxes.forEach((checkbox, index) => {
-            checkbox.checked = true;
-            this.columnStates.set(index, true);
-        });
-
-        // Show all columns
-        const hiddenElements = this.table.querySelectorAll(".column-hidden");
-        hiddenElements.forEach((element) => {
-            element.classList.remove("column-hidden");
-        });
-
-        this.updateTriggerText();
-    }
-
-    updateTriggerText() {
-        const trigger = document.querySelector(".toggler-visibility-trigger");
-        const visibleCount = Array.from(this.columnStates.values()).filter(
-            (state) => state
-        ).length;
-        const totalCount = this.columnStates.size;
-
-        if (visibleCount === totalCount) {
-            trigger.textContent = "Tampilkan semua";
-        } else {
-            trigger.textContent = `${visibleCount}/${totalCount} kolom ditampilkan`;
-        }
-    }
-}
-
-// Initialize the toggler when DOM is loaded
-document.addEventListener("DOMContentLoaded", () => {
-    new ColumnVisibilityToggler("#data-table");
-});
-
-// Your original method integrated into the class structure
-// You can use this method if you prefer the original approach
-function setupTogglerVisibility(element) {
-    const togglerVisibility = document.createElement("div");
-    togglerVisibility.classList.add("toggler-visibility");
-    togglerVisibility.ariaLabel = "Toggle visibility of sortable status";
-    togglerVisibility.setAttribute("aria-controls", "orderable-status");
-    togglerVisibility.ariaHidden = "true";
-
-    // Set wrapper element for all toggler visibility or reset visibility to original visibility
-    const wrapper = document.createElement("div");
-    wrapper.classList.add("toggler-visibility-wrapper", "show-all");
-    wrapper.role = "button";
-    wrapper.ariaLabel =
-        "Toggle visibility of sortable status to original visibility";
-    wrapper.textContent = "Tampilkan semua";
-    wrapper.addEventListener("click", () => {
-        // Show all columns
-        const table = document.querySelector("#data-table");
-        const hiddenElements = table.querySelectorAll(".column-hidden");
-        hiddenElements.forEach((element) => {
-            element.classList.remove("column-hidden");
-        });
-
-        // Reset all checkboxes
-        const checkboxes = togglerVisibility.querySelectorAll(
-            'input[type="checkbox"]'
-        );
-        checkboxes.forEach((checkbox) => {
-            checkbox.checked = true;
-        });
-    });
-    togglerVisibility.appendChild(wrapper);
-
-    // Get data from thead table or column
-    const table = document.querySelector("#data-table");
-    const columnData = table.querySelectorAll("thead th");
-    columnData.forEach((column, index) => {
-        if (column.dataset.draggable !== "false") {
-            // create wrapper element
-            const checkboxWrapper = document.createElement("div");
-            checkboxWrapper.classList.add("toggler-visibility-wrapper");
-            checkboxWrapper.role = "group";
-            checkboxWrapper.ariaLabel = `Toggle visibility of sortable status for column ${column.textContent.trim()}`;
-
-            // create checkbox
-            const checkbox = document.createElement("input");
-            checkbox.type = "checkbox";
-            checkbox.id = `toggle-orderable-status-${index}`;
-            checkbox.checked = true;
-            checkbox.ariaRequired = "false";
-            checkbox.addEventListener("change", () => {
-                const columnIndex = index + 1; // CSS nth-child is 1-based
-
-                if (checkbox.checked) {
-                    // Show column
-                    const headerCell = table.querySelector(
-                        `thead th:nth-child(${columnIndex})`
-                    );
-                    const bodyCells = table.querySelectorAll(
-                        `tbody td:nth-child(${columnIndex})`
-                    );
-
-                    if (headerCell)
-                        headerCell.classList.remove("column-hidden");
-                    bodyCells.forEach((cell) =>
-                        cell.classList.remove("column-hidden")
-                    );
-                } else {
-                    // Hide column
-                    const headerCell = table.querySelector(
-                        `thead th:nth-child(${columnIndex})`
-                    );
-                    const bodyCells = table.querySelectorAll(
-                        `tbody td:nth-child(${columnIndex})`
-                    );
-
-                    if (headerCell) headerCell.classList.add("column-hidden");
-                    bodyCells.forEach((cell) =>
-                        cell.classList.add("column-hidden")
-                    );
-                }
-            });
-
-            // create label
-            const label = document.createElement("label");
-            label.htmlFor = `toggle-orderable-status-${index}`;
-            label.textContent = column.textContent.trim();
-
-            // Append to wrapper
-            checkboxWrapper.appendChild(checkbox);
-            checkboxWrapper.appendChild(label);
-            togglerVisibility.appendChild(checkboxWrapper);
-        }
-    });
-
-    element.appendChild(togglerVisibility);
-    return element;
-}
-
 class TableColumnReorder {
     constructor(tableSelector, options = {}) {
         this.table = document.querySelector(tableSelector);
@@ -284,6 +11,9 @@ class TableColumnReorder {
         this.draggedColumn = null;
         this.originalOrder = [];
         this.currentOrder = [];
+        this.columnVisibility = [];
+        this.headerElements = [];
+        this.originalHeaders = [];
 
         this.init();
     }
@@ -294,8 +24,9 @@ class TableColumnReorder {
             return;
         }
 
-        this.setupOrderableStatus();
+        // Setup original order FIRST before anything else
         this.setupOriginalOrder();
+        this.setupOrderableStatus();
         this.setupDragAndDrop();
         this.setupResetButton();
         this.updateStatus("kolom siap dipindahkan");
@@ -306,13 +37,13 @@ class TableColumnReorder {
         orderableStatus.classList.add("orderable-status");
         orderableStatus.id = "orderable-status";
         orderableStatus.role = "status";
-        orderableStatus.ariaAtomic = "true";
-        orderableStatus.ariaHasPopup = "true";
+        orderableStatus.setAttribute("aria-atomic", "true");
+        orderableStatus.setAttribute("aria-haspopup", "true");
         orderableStatus.setAttribute("aria-live", "polite");
 
-        // Check if table id is defined
-        if (!this.table.id)
+        if (this.table.id) {
             orderableStatus.setAttribute("aria-controls", this.table.id);
+        }
 
         const statusText = document.createElement("span");
         statusText.classList.add("orderable-status-text");
@@ -322,7 +53,7 @@ class TableColumnReorder {
         statusText.dataset.tooltip = "true";
         statusText.dataset.tooltipTitle =
             "Tabel ini dapat diurutkan dengan mengklik judul kolom dan menggeser judul kolom, serta klik untuk melihat opsi visibilitas kolom.";
-        // Setup eventListener for status text
+
         statusText.addEventListener("click", () => {
             const togglerVisibilityElement = statusText.nextElementSibling;
             if (
@@ -336,123 +67,72 @@ class TableColumnReorder {
         });
         orderableStatus.appendChild(statusText);
 
-        // initialize tooltip
-        tooltipManager.init(statusText);
+        // Initialize tooltip if tooltipManager exists
+        if (typeof tooltipManager !== "undefined") {
+            tooltipManager.init(statusText);
+        }
 
-        // Initialize element toggler visibility
         const tableWrapper = this.table.parentElement;
-        if (tableWrapper && tableWrapper.classList.contains(".table-wrapper")) {
+        if (tableWrapper && tableWrapper.classList.contains("table-wrapper")) {
             tableWrapper.insertAdjacentElement(
                 "afterbegin",
-                this.#setupTogllerVisibility(orderableStatus)
+                this.#setupToggleVisibility(orderableStatus)
             );
         } else {
             this.table.insertAdjacentElement(
                 "afterend",
-                this.#setupTogllerVisibility(orderableStatus)
+                this.#setupToggleVisibility(orderableStatus)
             );
         }
     }
 
-    #setupTogllerVisibility(element) {
+    #setupToggleVisibility(element) {
         const togglerVisibility = document.createElement("div");
         togglerVisibility.classList.add("toggler-visibility");
-        togglerVisibility.ariaLabel = "Toggle visibility of sortable status";
+        togglerVisibility.setAttribute(
+            "aria-label",
+            "Toggle visibility of sortable status"
+        );
         togglerVisibility.setAttribute("aria-controls", "orderable-status");
-        togglerVisibility.ariaHidden = "true";
+        togglerVisibility.setAttribute("aria-hidden", "true");
 
-        // Set wrapper element for all toggler visibility or reset visibility to original visibility
+        // Show all button
         const wrapper = document.createElement("div");
         wrapper.classList.add("toggler-visibility-wrapper", "show-all");
         wrapper.role = "button";
-        wrapper.ariaLabel =
-            "Toggle visibility of sortable status to original visibility";
-        wrapper.ariaDisabled = "false";
+        wrapper.setAttribute("aria-label", "Show all columns");
+        wrapper.setAttribute("aria-disabled", "false");
         wrapper.textContent = "Tampilkan semua";
-        wrapper.addEventListener("click", () => {
-            // Show all columns
-            const hiddenElements =
-                this.table.querySelectorAll(".column-hidden");
-            hiddenElements.forEach((element) => {
-                element.classList.remove("column-hidden");
-            });
-
-            // Reset all checkboxes
-            const checkboxes = togglerVisibility.querySelectorAll(
-                'input[type="checkbox"]'
-            );
-            checkboxes.forEach((checkbox) => {
-                checkbox.checked = true;
-            });
-        });
+        wrapper.addEventListener("click", () => this.showAllColumns());
         togglerVisibility.appendChild(wrapper);
 
-        // Get data from thead table or column
-        const columnData = this.table.querySelectorAll("thead th");
-        columnData.forEach((column, index) => {
-            // create wrapper element
+        // Create checkboxes for each column using original headers
+        this.originalHeaders.forEach((headerText, index) => {
+            this.columnVisibility[index] = true;
+
             const checkboxWrapper = document.createElement("div");
             checkboxWrapper.classList.add("toggler-visibility-wrapper");
             checkboxWrapper.role = "group";
-            checkboxWrapper.ariaLabel = `Toggle visibility of sortable status for column ${column.textContent.trim()}`;
+            checkboxWrapper.setAttribute(
+                "aria-label",
+                `Toggle visibility for column ${headerText}`
+            );
 
-            // create checkbox
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.id = `toggle-orderable-status-${index}`;
             checkbox.checked = true;
-            checkbox.ariaRequired = "false";
+            checkbox.setAttribute("aria-required", "false");
+            checkbox.dataset.originalIndex = index;
 
-            checkbox.addEventListener("change", () => {
-                const columnIndex = index + 1;
+            checkbox.addEventListener("change", (e) =>
+                this.handleVisibilityChange(e, index)
+            );
 
-                if (checkbox.checked) {
-                    // Show column
-                    const headerCell = this.table.querySelector(
-                        `thead th:nth-child(${columnIndex})`
-                    );
-                    const bodyCells = this.table.querySelectorAll(
-                        `tbody td:nth-child(${columnIndex})`
-                    );
-
-                    if (headerCell)
-                        headerCell.classList.remove("column-hidden");
-                    bodyCells.forEach((cell) =>
-                        cell.classList.remove("column-hidden")
-                    );
-                } else {
-                    // Hide column
-                    const headerCell = this.table.querySelector(
-                        `thead th:nth-child(${columnIndex})`
-                    );
-                    const bodyCells = this.table.querySelectorAll(
-                        `tbody td:nth-child(${columnIndex})`
-                    );
-
-                    if (headerCell) headerCell.classList.add("column-hidden");
-                    bodyCells.forEach((cell) =>
-                        cell.classList.add("column-hidden")
-                    );
-                }
-
-                // Disable last checkbox if there is only one left
-                const uncheckedCheckboxes = togglerVisibility.querySelectorAll(
-                    '.toggler-visibility-wrapper input[type="checkbox"]:not(:checked)'
-                );
-                if (uncheckedCheckboxes.length === 1) {
-                    uncheckedCheckboxes.forEach((checkbox) => {
-                        checkbox.disabled = true;
-                        checkbox.ariaDisabled = "true";
-                    });
-                }
-            });
-
-            // create label
             const label = document.createElement("label");
             label.htmlFor = `toggle-orderable-status-${index}`;
-            label.textContent = column.textContent.trim();
+            label.textContent = headerText;
 
-            // Append to wrapper
             checkboxWrapper.appendChild(checkbox);
             checkboxWrapper.appendChild(label);
             togglerVisibility.appendChild(checkboxWrapper);
@@ -462,22 +142,142 @@ class TableColumnReorder {
         return element;
     }
 
-    setupOriginalOrder() {
-        const headers = this.table.querySelectorAll("thead th");
-        headers.forEach((header, index) => {
-            if (!header.hasAttribute("data-original-index")) {
-                header.setAttribute("data-original-index", index);
+    showAllColumns() {
+        // Show all columns
+        this.columnVisibility.fill(true);
+        this.applyColumnVisibility();
+
+        // Reset all checkboxes
+        const togglerVisibility = document.querySelector(".toggler-visibility");
+        if (togglerVisibility) {
+            const checkboxes = togglerVisibility.querySelectorAll(
+                'input[type="checkbox"]'
+            );
+            checkboxes.forEach((checkbox) => {
+                checkbox.checked = true;
+                checkbox.disabled = false;
+                checkbox.setAttribute("aria-disabled", "false");
+            });
+        }
+    }
+
+    handleVisibilityChange(event, originalIndex) {
+        const checkbox = event.target;
+        this.columnVisibility[originalIndex] = checkbox.checked;
+        this.applyColumnVisibility();
+        this.updateVisibilityControls();
+    }
+
+    applyColumnVisibility() {
+        const headerRow = this.table.querySelector("thead tr");
+        const bodyRows = this.table.querySelectorAll("tbody tr");
+
+        if (!headerRow) return;
+
+        const headers = Array.from(headerRow.children);
+
+        // Apply visibility to headers based on their current position
+        headers.forEach((header, currentIndex) => {
+            const originalIndex = parseInt(
+                header.getAttribute("data-original-index")
+            );
+
+            // Check if originalIndex is valid
+            if (
+                isNaN(originalIndex) ||
+                originalIndex < 0 ||
+                originalIndex >= this.columnVisibility.length
+            ) {
+                return;
             }
-            this.originalOrder.push(index);
-            this.currentOrder.push(index);
+
+            const isVisible = this.columnVisibility[originalIndex];
+            header.style.display = isVisible ? "" : "none";
+
+            // Apply to corresponding body cells
+            bodyRows.forEach((row) => {
+                const cell = row.children[currentIndex];
+                if (cell) {
+                    cell.style.display = isVisible ? "" : "none";
+                }
+            });
         });
     }
 
-    setupDragAndDrop() {
+    updateVisibilityControls() {
+        const togglerVisibility = document.querySelector(".toggler-visibility");
+        if (!togglerVisibility) return;
+
+        const checkboxes = togglerVisibility.querySelectorAll(
+            'input[type="checkbox"]'
+        );
+        const visibleCount = this.columnVisibility.filter(
+            (visible) => visible
+        ).length;
+
+        if (visibleCount === 1) {
+            checkboxes.forEach((checkbox) => {
+                const originalIndex = parseInt(checkbox.dataset.originalIndex);
+                if (this.columnVisibility[originalIndex]) {
+                    checkbox.disabled = true;
+                    checkbox.setAttribute("aria-disabled", "true");
+                } else {
+                    checkbox.disabled = false;
+                    checkbox.setAttribute("aria-disabled", "false");
+                }
+            });
+        } else {
+            checkboxes.forEach((checkbox) => {
+                checkbox.disabled = false;
+                checkbox.setAttribute("aria-disabled", "false");
+            });
+        }
+    }
+
+    setupOriginalOrder() {
         const headers = this.table.querySelectorAll("thead th");
 
+        // Clear arrays first
+        this.originalHeaders = [];
+        this.originalOrder = [];
+        this.currentOrder = [];
+        this.columnVisibility = [];
+
+        // Store original headers and setup tracking
         headers.forEach((header, index) => {
-            // Check if column is draggable
+            const headerText = header.textContent.trim();
+            this.originalHeaders.push(headerText);
+
+            if (!header.hasAttribute("data-original-index")) {
+                header.setAttribute("data-original-index", index);
+            }
+
+            this.originalOrder.push(index);
+            this.currentOrder.push(index);
+            this.columnVisibility.push(true); // Initialize visibility
+        });
+
+        // Store reference to header elements
+        this.headerElements = Array.from(headers);
+    }
+
+    setupDragAndDrop() {
+        this.refreshDragHandlers();
+    }
+
+    refreshDragHandlers() {
+        const headers = this.table.querySelectorAll("thead th");
+
+        headers.forEach((header, currentIndex) => {
+            // Clear existing handlers
+            if (header._dragHandlers) {
+                Object.entries(header._dragHandlers).forEach(
+                    ([event, handler]) => {
+                        header.removeEventListener(event, handler);
+                    }
+                );
+            }
+
             const isDraggable = header.dataset.draggable !== "false";
 
             if (!isDraggable) {
@@ -496,18 +296,20 @@ class TableColumnReorder {
             header.draggable = true;
             header.style.cursor = "grab";
 
-            header.addEventListener("dragstart", (e) =>
-                this.handleDragStart(e, index)
-            );
-            header.addEventListener("dragover", (e) => this.handleDragOver(e));
-            header.addEventListener("dragenter", (e) =>
-                this.handleDragEnter(e)
-            );
-            header.addEventListener("dragleave", (e) =>
-                this.handleDragLeave(e)
-            );
-            header.addEventListener("drop", (e) => this.handleDrop(e, index));
-            header.addEventListener("dragend", (e) => this.handleDragEnd(e));
+            const handlers = {
+                dragstart: (e) => this.handleDragStart(e, currentIndex),
+                dragover: (e) => this.handleDragOver(e),
+                dragenter: (e) => this.handleDragEnter(e),
+                dragleave: (e) => this.handleDragLeave(e),
+                drop: (e) => this.handleDrop(e, currentIndex),
+                dragend: (e) => this.handleDragEnd(e),
+            };
+
+            Object.entries(handlers).forEach(([event, handler]) => {
+                header.addEventListener(event, handler);
+            });
+
+            header._dragHandlers = handlers;
         });
     }
 
@@ -516,36 +318,44 @@ class TableColumnReorder {
         e.target.classList.add("dragging");
         e.target.style.cursor = "grabbing";
 
-        // Set drag effect
         e.dataTransfer.effectAllowed = "move";
         e.dataTransfer.setData("text/html", e.target.outerHTML);
 
-        // === Custom drag image preview ===
+        // Custom drag image
         const original = e.target;
         const computedStyle = window.getComputedStyle(original);
-
         const preview = document.createElement("div");
+
         preview.textContent = original.textContent.trim();
-        preview.style.width = computedStyle.width;
-        preview.style.height = computedStyle.height;
-        preview.style.padding = computedStyle.padding;
-        preview.style.margin = computedStyle.margin;
-        preview.style.font = computedStyle.font;
-        preview.style.fontSize = computedStyle.fontSize;
-        preview.style.fontWeight = computedStyle.fontWeight;
-        preview.style.lineHeight = computedStyle.lineHeight;
-        preview.style.textAlign = computedStyle.textAlign;
-        preview.style.verticalAlign = computedStyle.verticalAlign;
-        preview.style.color = "var(--white-color)";
-        preview.style.backgroundColor = "var(--black-1-color)";
-        preview.style.border = "2px solid var(--border-color)";
-        preview.style.boxShadow = computedStyle.boxShadow;
-        preview.style.borderRadius = computedStyle.borderRadius;
-        preview.style.opacity = "1";
+        Object.assign(preview.style, {
+            width: computedStyle.width,
+            height: computedStyle.height,
+            padding: computedStyle.padding,
+            margin: computedStyle.margin,
+            font: computedStyle.font,
+            fontSize: computedStyle.fontSize,
+            fontWeight: computedStyle.fontWeight,
+            lineHeight: computedStyle.lineHeight,
+            textAlign: computedStyle.textAlign,
+            verticalAlign: computedStyle.verticalAlign,
+            color: "var(--white-color, #fff)",
+            backgroundColor: "var(--black-1-color, #333)",
+            border: "2px solid var(--border-color, #ddd)",
+            boxShadow: computedStyle.boxShadow,
+            borderRadius: computedStyle.borderRadius,
+            opacity: "1",
+            position: "absolute",
+            top: "-1000px",
+            left: "-1000px",
+        });
 
         document.body.appendChild(preview);
         e.dataTransfer.setDragImage(preview, 10, 10);
-        setTimeout(() => document.body.removeChild(preview), 0);
+        setTimeout(() => {
+            if (document.body.contains(preview)) {
+                document.body.removeChild(preview);
+            }
+        }, 0);
 
         this.updateStatus(
             `Sedang memindahkan kolom "${e.target.textContent.trim()}"`
@@ -577,7 +387,6 @@ class TableColumnReorder {
     handleDrop(e, targetIndex) {
         e.preventDefault();
 
-        // Check if target column is draggable
         const targetHeader =
             this.table.querySelectorAll("thead th")[targetIndex];
         if (targetHeader && targetHeader.dataset.draggable === "false") {
@@ -594,7 +403,6 @@ class TableColumnReorder {
                 `Kolom berhasil dipindahkan ke posisi ${targetIndex + 1}`
             );
 
-            // Callback
             if (this.options.onReorder) {
                 this.options.onReorder(
                     this.draggedColumn,
@@ -621,38 +429,62 @@ class TableColumnReorder {
     }
 
     reorderColumns(fromIndex, toIndex) {
-        const headers = Array.from(this.table.querySelectorAll("thead th"));
-        const rows = Array.from(this.table.querySelectorAll("tbody tr"));
-
-        // Reorder headers
         const headerRow = this.table.querySelector("thead tr");
-        const movedHeader = headers[fromIndex];
-        headerRow.removeChild(movedHeader);
+        const bodyRows = Array.from(this.table.querySelectorAll("tbody tr"));
 
-        if (toIndex >= headers.length - 1) {
-            headerRow.appendChild(movedHeader);
+        if (!headerRow) return;
+
+        // Get current DOM order
+        const headers = Array.from(headerRow.children);
+        const draggedHeader = headers[fromIndex];
+
+        if (!draggedHeader) return;
+
+        // Move header
+        headerRow.removeChild(draggedHeader);
+
+        if (toIndex >= headers.length) {
+            headerRow.appendChild(draggedHeader);
         } else {
-            headerRow.insertBefore(movedHeader, headers[toIndex]);
+            const referenceHeader = headers[toIndex];
+            if (referenceHeader) {
+                headerRow.insertBefore(draggedHeader, referenceHeader);
+            } else {
+                headerRow.appendChild(draggedHeader);
+            }
         }
 
-        // Reorder body cells
-        rows.forEach((row) => {
+        // Move corresponding cells in each body row
+        bodyRows.forEach((row) => {
             const cells = Array.from(row.children);
-            const movedCell = cells[fromIndex];
-            row.removeChild(movedCell);
+            const draggedCell = cells[fromIndex];
 
-            if (toIndex >= cells.length - 1) {
-                row.appendChild(movedCell);
+            if (!draggedCell) return;
+
+            row.removeChild(draggedCell);
+
+            if (toIndex >= cells.length) {
+                row.appendChild(draggedCell);
             } else {
-                row.insertBefore(movedCell, cells[toIndex]);
+                const referenceCell = cells[toIndex];
+                if (referenceCell) {
+                    row.insertBefore(draggedCell, referenceCell);
+                } else {
+                    row.appendChild(draggedCell);
+                }
             }
         });
 
-        // Update current order
-        const movedItem = this.currentOrder.splice(fromIndex, 1)[0];
-        this.currentOrder.splice(toIndex, 0, movedItem);
+        // Update currentOrder array
+        const movedOriginalIndex = this.currentOrder.splice(fromIndex, 1)[0];
+        this.currentOrder.splice(toIndex, 0, movedOriginalIndex);
 
-        // Update reset button state
+        // Refresh drag handlers with new positions
+        this.refreshDragHandlers();
+
+        // Reapply visibility after reorder
+        this.applyColumnVisibility();
+
         this.updateResetButton();
     }
 
@@ -679,6 +511,10 @@ class TableColumnReorder {
                     this.originalOrder
                 );
                 resetBtn.disabled = !hasChanged;
+                resetBtn.setAttribute(
+                    "aria-disabled",
+                    hasChanged ? "false" : "true"
+                );
             }
         }
     }
@@ -688,44 +524,60 @@ class TableColumnReorder {
             return;
         }
 
-        // Rebuild table with original order
-        const headers = Array.from(this.table.querySelectorAll("thead th"));
-        const rows = Array.from(this.table.querySelectorAll("tbody tr"));
+        const headerRow = this.table.querySelector("thead tr");
+        const bodyRows = Array.from(this.table.querySelectorAll("tbody tr"));
 
-        // Sort headers by original index
-        const sortedHeaders = headers.sort((a, b) => {
-            return (
-                parseInt(a.getAttribute("data-original-index")) -
-                parseInt(b.getAttribute("data-original-index"))
-            );
+        if (!headerRow) return;
+
+        // Create mapping of current position to original position
+        const currentHeaders = Array.from(headerRow.children);
+        const currentBodiesMatrix = bodyRows.map((row) =>
+            Array.from(row.children)
+        );
+
+        // Sort by original index
+        const sortedData = this.originalOrder
+            .map((originalIndex) => {
+                const currentPos = this.currentOrder.indexOf(originalIndex);
+                if (currentPos === -1) return null;
+
+                return {
+                    header: currentHeaders[currentPos],
+                    bodyCells: currentBodiesMatrix.map(
+                        (rowCells) => rowCells[currentPos]
+                    ),
+                };
+            })
+            .filter((data) => data !== null);
+
+        // Clear and rebuild header
+        headerRow.innerHTML = "";
+        sortedData.forEach((data) => {
+            if (data.header) {
+                headerRow.appendChild(data.header);
+            }
         });
 
-        // Clear and rebuild header row
-        const headerRow = this.table.querySelector("thead tr");
-        headerRow.innerHTML = "";
-        sortedHeaders.forEach((header) => headerRow.appendChild(header));
-
-        // Rebuild body rows
-        rows.forEach((row) => {
-            const cells = Array.from(row.children);
-            const sortedCells = [];
-
-            this.originalOrder.forEach((originalIndex) => {
-                const currentIndex = this.currentOrder.indexOf(originalIndex);
-                sortedCells.push(cells[currentIndex]);
-            });
-
+        // Clear and rebuild body rows
+        bodyRows.forEach((row, rowIndex) => {
             row.innerHTML = "";
-            sortedCells.forEach((cell) => row.appendChild(cell));
+            sortedData.forEach((data) => {
+                if (data.bodyCells && data.bodyCells[rowIndex]) {
+                    row.appendChild(data.bodyCells[rowIndex]);
+                }
+            });
         });
 
         // Reset order arrays
         this.currentOrder = [...this.originalOrder];
 
+        // Refresh handlers and visibility
+        this.refreshDragHandlers();
+        this.applyColumnVisibility();
+
         this.updateStatus("Urutan kolom telah direset ke posisi asli");
         this.updateResetButton();
 
-        // Callback
         if (this.options.onReset) {
             this.options.onReset(this.currentOrder);
         }
@@ -734,10 +586,10 @@ class TableColumnReorder {
     updateStatus(message) {
         if (typeof CREATE_STATUS_ELEMENT === "function") {
             const statusElementId = CREATE_STATUS_ELEMENT(message);
-
-            // Clear status after 2.5 seconds
             setTimeout(() => {
-                REMOVE_STATUS_ELEMENT(statusElementId);
+                if (typeof REMOVE_STATUS_ELEMENT === "function") {
+                    REMOVE_STATUS_ELEMENT(statusElementId);
+                }
             }, 2500);
         }
     }
@@ -759,31 +611,64 @@ class TableColumnReorder {
         return !this.arraysEqual(this.currentOrder, this.originalOrder);
     }
 
+    getColumnVisibility() {
+        return [...this.columnVisibility];
+    }
+
+    setColumnVisibility(index, visible) {
+        if (index >= 0 && index < this.columnVisibility.length) {
+            this.columnVisibility[index] = visible;
+            this.applyColumnVisibility();
+            this.updateVisibilityControls();
+
+            // Update corresponding checkbox
+            const checkbox = document.querySelector(
+                `#toggle-orderable-status-${index}`
+            );
+            if (checkbox) {
+                checkbox.checked = visible;
+            }
+        }
+    }
+
     destroy() {
         const headers = this.table.querySelectorAll("thead th");
         headers.forEach((header) => {
             header.draggable = false;
             header.style.cursor = "default";
 
-            // Remove event listeners would need more complex implementation
-            // header.removeEventListener("dragstart", this.handleDragStart);
-            // header.removeEventListener("dragover", this.handleDragOver);
-            // header.removeEventListener("dragenter", this.handleDragEnter);
-            // header.removeEventListener("dragleave", this.handleDragLeave);
-            // header.removeEventListener("drop", this.handleDrop);
-            // header.removeEventListener("dragend", this.handleDragEnd);
+            if (header._dragHandlers) {
+                Object.entries(header._dragHandlers).forEach(
+                    ([event, handler]) => {
+                        header.removeEventListener(event, handler);
+                    }
+                );
+                delete header._dragHandlers;
+            }
         });
+
+        const statusElement = document.getElementById("orderable-status");
+        if (statusElement) {
+            statusElement.remove();
+        }
+
+        const togglerVisibility = document.querySelector(".toggler-visibility");
+        if (togglerVisibility) {
+            togglerVisibility.remove();
+        }
     }
 }
 
-// ===CONTOH PENGGUNAAN=== //
-// const tableReorder = new TableColumnReorder("#tabel-user", {
-//     resetButtonSelector: "#reset-table-order",
-//     onReorder: function (fromIndex, toIndex, currentOrder) {
-//         console.log("Kolom dipindahkan dari", fromIndex, "ke", toIndex);
-//         console.log("Urutan saat ini:", currentOrder);
-//     },
-//     onReset: function (currentOrder) {
-//         console.log("Tabel direset, urutan:", currentOrder);
-//     },
-// });
+// Usage example
+/*
+const tableReorder = new TableColumnReorder("#tabel-user", {
+    resetButtonSelector: "#reset-table-order",
+    onReorder: function (fromIndex, toIndex, currentOrder) {
+        console.log("Kolom dipindahkan dari", fromIndex, "ke", toIndex);
+        console.log("Urutan saat ini:", currentOrder);
+    },
+    onReset: function (currentOrder) {
+        console.log("Tabel direset, urutan:", currentOrder);
+    },
+});
+*/

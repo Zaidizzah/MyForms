@@ -169,7 +169,7 @@ table + .orderable-status {
     left: var(--gap-between-elemen);
 }
 
-table + .orderable-status span.orderable-status-text {
+.table-wrapper .orderable-status span.orderable-status-text {
     color: var(--blue);
     margin-right: 0.5rem;
     text-decoration: none;
@@ -245,6 +245,7 @@ table + .orderable-status span.orderable-status-text {
 }
 
 .toggler-visibility-wrapper label {
+    flex: 1;
     cursor: pointer;
     font-size: 14px;
     color: #495057;
