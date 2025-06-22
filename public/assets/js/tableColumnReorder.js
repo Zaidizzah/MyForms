@@ -75,7 +75,7 @@ class TableColumnReorder {
         const tableWrapper = this.table.parentElement;
         if (tableWrapper && tableWrapper.classList.contains("table-wrapper")) {
             tableWrapper.insertAdjacentElement(
-                "afterbegin",
+                "afterend",
                 this.#setupToggleVisibility(orderableStatus)
             );
         } else {

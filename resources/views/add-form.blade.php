@@ -2,19 +2,6 @@
 
 @section('container')
 
-    {{-- <form action="{{ route("api.file.upload") }}" method="post" enctype="multipart/form-data">
-        @csrf
-
-        <input type="file" class="input" name="file">
-        <select class="input" name="context">
-            <option value="question">Question</option>
-            <option value="option">Option</option>
-        </select>
-        <input type="datetime" class="input" name="timestamp" value="{{ now()->timestamp }}" readonly>
-
-        <button type="submit" role="button" class="btn" data-tooltip="true" data-tooltip-title="Upload file">Upload</button>
-    </form> --}}
-
     <div class="container" id="form-builder" role="region" data-base-url="{{ route("api.form.store") }}" data-upload-url="{{ route("api.file.upload") }}" data-delete-url="{{ route("api.file.delete") }}" aria-labelledby="form-builder-header" aria-describedby="form-builder-body">
         <!-- Question Counter -->
         <span id="question-counter" class="question-counter" role="status" aria-live="polite" aria-atomic="true" aria-label="Jumlah pertanyaan"

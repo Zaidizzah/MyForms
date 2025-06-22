@@ -163,13 +163,13 @@ table thead th[data-draggable="false"] {
     opacity: 0.5;
 }
 
-table + .orderable-status {
-    position: sticky;
-    bottom: 0;
-    left: var(--gap-between-elemen);
+.table-wrapper .orderable-status, 
+.table-wrapper + .orderable-status {
+    position: relative;
 }
 
-.table-wrapper .orderable-status span.orderable-status-text {
+.table-wrapper .orderable-status span.orderable-status-text,
+.table-wrapper + .orderable-status span.orderable-status-text {
     color: var(--blue);
     margin-right: 0.5rem;
     text-decoration: none;
@@ -193,7 +193,7 @@ table + .orderable-status {
 
 .toggler-visibility {
     position: absolute;
-    bottom: 0;
+    bottom: calc(100% + var(--gap-between-elemen));
     right: auto;
     transform: translateX(50%);
     border: 2px solid var(--border-color);
@@ -201,6 +201,17 @@ table + .orderable-status {
     display: none;
 
     z-index: 550;
+
+    /* Bottom arrow in ::after property */
+    &::after {
+        content: "";
+        position: absolute;
+        bottom: -15px;
+        right: calc(50% - 15px / 2);
+        border-left: 15px solid transparent;
+        border-right: 15px solid transparent;
+        border-top: 15px solid var(--border-color);
+    }
 }
 
 .toggler-visibility.show {

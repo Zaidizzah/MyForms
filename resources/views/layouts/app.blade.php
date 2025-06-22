@@ -6,6 +6,7 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0"
     />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="description" content="MYFORMS sebagai program penyedia layanan form dan survei atau quis yang dapat dibuat sesuai kebutuhan" />
     <meta name="csrf_token" content="{{ csrf_token() }}">
     <title>{{ $title }} - MYFORMS</title>
@@ -47,10 +48,10 @@
 
       <div class="navbar-right">
         <div class="nav-item" data-tooltip="true" data-tooltip-title="Settings for MYFORMS">
-            <a href="/" role="button" data><img class="icon" src="{{ asset("images/application icons/settings.png") }}" loading="lazy" alt="Settings icon"></a>
+            <a href="/" role="button"><img class="icon" src="{{ asset("images/application icons/settings.png") }}" loading="lazy" alt="Settings icon"></a>
         </div>
         <div class="nav-item" data-tooltip="true" data-tooltip-title="Logout from MYFORMS">
-            <a href="/" role="button"><img class="icon" src="{{ asset("images/application icons/logout.png") }}" loading="lazy" alt="Logout icon"></a>
+            <a href="{{ route("signout") }}" role="button" onclick="return confirm('Apakah anda yakin ingin keluar dari aplikasi MYFORMS ini?')"><img class="icon" src="{{ asset("images/application icons/logout.png") }}" loading="lazy" alt="Logout icon"></a>
         </div>
         <div class="nav-item">
             <div class="user-info">
@@ -95,6 +96,10 @@
       </div>
     </nav>
 
+    <aside class="sidebar">
+
+    </aside>
+
     <!-- Main section -->
     <main class="main-content">
       @includeWhen(session('flash-message'), 'partials.flash-message')
@@ -110,7 +115,7 @@
             @endif
         @endisset
       </div>
-      
+
       <!-- Opening section -->
       <section class="opening-section" aria-labelledby="opening-section-label" aria-describedby="opening-section-describe">
           <h2 id="opening-section-label">Selamat datang di MYFORMS</h2>
@@ -119,7 +124,7 @@
 
       <!-- Container section -->
       @yield('container')
-      
+
       @includeWhen($errors->any(), 'partials.error-notification')
     </main>
 

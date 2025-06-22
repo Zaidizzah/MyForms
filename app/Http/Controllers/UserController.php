@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Validation\Rules\Password;
+use Illuminate\Support\Facades\Hash;
 use App\Traits\ApiResponse;
 
 class UserController extends Controller
@@ -63,7 +64,7 @@ class UserController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'role' => 'participant',
-                'password' => bcrypt($request->password)
+                'password' => Hash::make($request->password)
             ]
         );
         $user->save();
