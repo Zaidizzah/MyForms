@@ -68,12 +68,16 @@ thead th {
     position: relative;
     vertical-align: bottom;
     user-select: none;
-    cursor: grab;
+    cursor: default;
     transition: all ease 0.3s;
 
     &::after {
         content: "";
     }
+}
+
+table[orderable="true"] thead th {
+    cursor: grab;
 }
 
 td:first-of-type,
@@ -163,7 +167,7 @@ table thead th[data-draggable="false"] {
     opacity: 0.5;
 }
 
-.table-wrapper .orderable-status, 
+.table-wrapper .orderable-status,
 .table-wrapper + .orderable-status {
     position: relative;
 }

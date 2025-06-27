@@ -28,7 +28,7 @@
             </form>
 
             <div class="table-wrapper" tabindex="0">
-                <table class="simple" id="tabel-user" role="table" aria-labelledby="tabel-user-caption" data-base-url-edit="{{ route("api.user.show", ":uuid") }}">
+                <table class="simple" id="tabel-user" role="table" aria-labelledby="tabel-user-caption" data-base-url-edit="{{ route("api.user.show", ":uuid") }}" orderable="true">
                     <caption id="tabel-user-caption">Data-data pengguna aplikasi MYFORMS</caption>
                     <thead>
                         <tr>

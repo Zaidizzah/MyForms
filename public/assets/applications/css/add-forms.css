@@ -292,14 +292,14 @@
     bottom: unset;
     top: calc(80px + 50px - 1px);
 }
-
+/* 
 .lists-anchor .lists-anchor-toggler:hover > span {
     transform: rotate(135deg);
 }
 
 .lists-anchor.active .lists-anchor-toggler:hover > span {
     transform: rotate(-45deg);
-}
+} */
 
 .lists-anchor.active .lists-anchor-toggler > span {
     transform: rotate(135deg);

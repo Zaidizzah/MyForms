@@ -48,7 +48,7 @@
 					<label for="captcha">CAPTCHA</label>
 					<div class="recaptcha" id="recaptcha" role="group" aria-label="Captcha image wrapper">
 						<img src="{{ captcha_src() }}" data-tooltip="true" data-tooltip-title="Captcha image" loading="lazy" alt="captcha image">
-						<button type="button" id="refresh-captcha" role="button" class="btn" data-tooltip="true" data-tooltip-title="Refresh captcha">Refresh</button>
+						<button type="button" id="refresh-captcha" role="button" class="btn" tabindex="-1" data-tooltip="true" data-tooltip-title="Refresh captcha">Refresh</button>
 					</div>
 					<input type="text" name="captcha" id="captcha" class="input" placeholder="Isikan dengan captcha yang valid" aria-required="true" required>
 				</div>

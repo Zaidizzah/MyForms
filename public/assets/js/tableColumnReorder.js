@@ -107,7 +107,7 @@ class TableColumnReorder {
         togglerVisibility.appendChild(wrapper);
 
         // Create checkboxes for each column using original headers
-        this.originalHeaders.forEach((headerText, index) => {
+        this.originalHeaders.forEach((value, index) => {
             this.columnVisibility[index] = true;
 
             const checkboxWrapper = document.createElement("div");
@@ -115,7 +115,7 @@ class TableColumnReorder {
             checkboxWrapper.role = "group";
             checkboxWrapper.setAttribute(
                 "aria-label",
-                `Toggle visibility for column ${headerText}`
+                `Toggle visibility for column ${value.headerText}`
             );
 
             const checkbox = document.createElement("input");
@@ -123,15 +123,23 @@ class TableColumnReorder {
             checkbox.id = `toggle-orderable-status-${index}`;
             checkbox.checked = true;
             checkbox.setAttribute("aria-required", "false");
+            if (value.draggable === "false") {
+                checkbox.disabled = true;
+                checkbox.setAttribute("aria-disabled", "true");
+                checkbox.dataset.eventChanged = false;
+            }
             checkbox.dataset.originalIndex = index;
 
-            checkbox.addEventListener("change", (e) =>
-                this.handleVisibilityChange(e, index)
-            );
+            // Prevent checkbox from being checked
+            if (value.draggable === "true") {
+                checkbox.addEventListener("change", (e) =>
+                    this.handleVisibilityChange(e, index)
+                );
+            }
 
             const label = document.createElement("label");
             label.htmlFor = `toggle-orderable-status-${index}`;
-            label.textContent = headerText;
+            label.textContent = value.headerText;
 
             checkboxWrapper.appendChild(checkbox);
             checkboxWrapper.appendChild(label);
@@ -154,9 +162,11 @@ class TableColumnReorder {
                 'input[type="checkbox"]'
             );
             checkboxes.forEach((checkbox) => {
-                checkbox.checked = true;
-                checkbox.disabled = false;
-                checkbox.setAttribute("aria-disabled", "false");
+                if (checkbox.dataset.eventChanged !== "false") {
+                    checkbox.checked = true;
+                    checkbox.disabled = false;
+                    checkbox.setAttribute("aria-disabled", "false");
+                }
             });
         }
     }
@@ -215,7 +225,10 @@ class TableColumnReorder {
             (visible) => visible
         ).length;
 
-        if (visibleCount === 1) {
+        if (
+            visibleCount === 1 &&
+            checkboxes[0]?.dataset.eventChanged !== "false"
+        ) {
             checkboxes.forEach((checkbox) => {
                 const originalIndex = parseInt(checkbox.dataset.originalIndex);
                 if (this.columnVisibility[originalIndex]) {
@@ -228,8 +241,10 @@ class TableColumnReorder {
             });
         } else {
             checkboxes.forEach((checkbox) => {
-                checkbox.disabled = false;
-                checkbox.setAttribute("aria-disabled", "false");
+                if (checkbox.dataset.eventChanged !== "false") {
+                    checkbox.disabled = false;
+                    checkbox.setAttribute("aria-disabled", "false");
+                }
             });
         }
     }
@@ -246,7 +261,11 @@ class TableColumnReorder {
         // Store original headers and setup tracking
         headers.forEach((header, index) => {
             const headerText = header.textContent.trim();
-            this.originalHeaders.push(headerText);
+            this.originalHeaders.push({
+                headerText: headerText,
+                draggable: header.dataset.draggable || "true",
+                columnIndex: index,
+            });
 
             if (!header.hasAttribute("data-original-index")) {
                 header.setAttribute("data-original-index", index);

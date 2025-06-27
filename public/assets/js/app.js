@@ -336,7 +336,6 @@ window.CHECK_STATUS_RESPONSE = (response) => {
     const settingsButton = document.querySelector(
         'a[aria-controls="settings-submenu"]'
     );
-    console.log(settingsButton);
 
     if (settingsButton) {
         settingsButton.addEventListener("click", function (e) {
