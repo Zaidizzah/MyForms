@@ -87,11 +87,12 @@ class UserController extends Controller
 
     public function show(Request $request, ?string $uuid = null)
     {
+        // Check if request accepts JSON response
         if ($request->acceptsJson()) {
             $user = User::select('uuid', 'name', 'email', 'role', 'deleted_at')->where('deleted_at', null)->where('role', 'participant')->where('uuid', $uuid)->first();
 
             if ($user === NULL) {
-                return $this->notFoundResponse('User data');
+                return $this->notFoundResponse(message: 'User data');
             }
 
             $CSRF_TOKEN = $request->header('X-CSRF-TOKEN'); // get value of X-CSRF-TOKEN from request header
@@ -101,7 +102,9 @@ class UserController extends Controller
             ], 'Formulir pengeditan data pengguna berhasil dibuat');
         }
 
-        return $this->forbiddenResponse();
+        return $request->acceptsJson();
+
+        // return $this->forbiddenResponse();
     }
 
     public function update(Request $request, ?string $uuid = null)

@@ -65,16 +65,14 @@ class FileUploadManager {
                     "X-XSRF-TOKEN": XSRF_TOKEN,
                 },
                 body: formData,
+                credentials: "include",
             });
 
-            console.log(response);
+            // check status response if the status code is in (401, 403) then return false
+            if (!CHECK_STATUS_RESPONSE(response)) return false;
 
             if (!response.ok) {
-                const errorData = await response.json().catch(() => ({}));
-                throw new Error(
-                    errorData.message ||
-                        `HTTP error! status: ${response.status}`
-                );
+                throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const result = await response.json();
@@ -113,7 +111,7 @@ class FileUploadManager {
         const deletingStatus = CREATE_STATUS_ELEMENT("Deleting file");
 
         try {
-            const response = await fetch(this.deleteUrl, {
+            const response = await fetch(`${this.deleteUrl}/${fileId}`, {
                 method: "DELETE",
                 headers: {
                     "Content-Type": "application/json",
@@ -121,8 +119,15 @@ class FileUploadManager {
                     "X-CSRF-TOKEN": CSRF_TOKEN,
                     "X-XSRF-TOKEN": XSRF_TOKEN,
                 },
-                body: JSON.stringify({ url: fileId }),
+                credentials: "include",
             });
+
+            // check status response if the status code is in (401, 403) then return false
+            if (!CHECK_STATUS_RESPONSE(response)) return false;
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
             const result = await response.json();
             return result.success || false;

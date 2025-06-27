@@ -55,89 +55,95 @@ trait ApiResponse
      */
     public function validationErrorResponse(array $errors, string $message = 'Validation Error')
     {
-        return $this->errorResponse($message, $errors, statusCode: 422);
+        return $this->errorResponse($message, $errors, 422);
     }
 
     /**
      * Format not found response
      * 
-     * @param string $resource Name of the not found resource
+     * @param array $errors Not found data
+     * @param string $message Name of the not found resource
      * @return \Illuminate\Http\JsonResponse
      */
-    public function notFoundResponse(string $resource = 'Resource')
+    public function notFoundResponse(array $errors = [], string $message = 'Resource')
     {
-        return $this->errorResponse("{$resource} not found", statusCode: 404);
+        return $this->errorResponse("{$message} not found", $errors, 404);
     }
 
     /**
      * Format unauthorized response
      * 
-     * @param string $message Unauthorized message
+     * @param array $data Unauthorized data
+     * @param string $errors Unauthorized message
      * @return \Illuminate\Http\JsonResponse
      */
-    public function unauthorizedResponse(string $message = 'Unauthorized')
+    public function unauthorizedResponse(array $data = [], string $errors = 'Unauthorized')
     {
-        return $this->errorResponse($message, statusCode: 401);
+        return $this->errorResponse($errors, $data, 401);
     }
 
     /**
      * Format forbidden response
      * 
-     * @param string $message Forbidden message
+     * @param array $data Forbidden data
+     * @param string $errors Forbidden message
      * @return \Illuminate\Http\JsonResponse
      */
-    public function forbiddenResponse(string $message = 'Forbidden')
+    public function forbiddenResponse(array $data = [], string $errors = 'Forbidden')
     {
-        return $this->errorResponse($message, statusCode: 403);
+        return $this->errorResponse($errors, $data, 403);
     }
 
     /**
      * Format created resource response
      * 
      * @param array $data Created resource data
-     * @param string $resourceName Resource name
+     * @param string $message Resource name
      * @return \Illuminate\Http\JsonResponse
      */
-    public function createdResponse(array $data = [], string $resourceName = 'Resource')
+    public function createdResponse(array $data = [], string $message = 'Resource')
     {
-        return $this->successResponse($data, message: "{$resourceName} created successfully", statusCode: 201);
+        return $this->successResponse($data, "{$message} created successfully", 201);
     }
 
     /**
      * Format updated resource response
      * 
      * @param array $data Updated resource data
-     * @param string $resourceName Resource name
+     * @param string $message Resource name
      * @return \Illuminate\Http\JsonResponse
      */
-    public function updatedResponse(array $data = [], string $resourceName = 'Resource')
+    public function updatedResponse(array $data = [], string $message = 'Resource')
     {
-        return $this->successResponse($data, message: "{$resourceName} updated successfully");
+        return $this->successResponse($data, "{$message} updated successfully");
     }
 
     /**
      * Format deleted resource response
      * 
-     * @param string $resourceName Resource name
+     * @param array $data Deleted resource data
+     * @param string $message Resource name
      * @return \Illuminate\Http\JsonResponse
      */
-    public function deletedResponse(string $resourceName = 'Resource')
+    public function deletedResponse(array $data = [], string $message = 'Resource')
     {
-        return $this->successResponse(message: "{$resourceName} deleted successfully");
+        return $this->successResponse($data, "{$message} deleted successfully");
     }
 
     /**
      * Response for server error 
      * 
+     * @param array $data Data to be sent
      * @param string $message Error message
      * @param mixed $exception Exception object (optional)
      * @return \Illuminate\Http\JsonResponse
      */
-    public function serverErrorResponse(string $message = 'Server Error occurred, please stay tuned', $exception = null)
+    public function serverErrorResponse(array $data = [], string $message = 'Server Error occurred, please stay tuned', $exception = null)
     {
         $response = [
             'success' => false,
-            'message' => $message
+            'message' => $message,
+            ...$data
         ];
 
         if (config('app.debug') && $exception !== null) {

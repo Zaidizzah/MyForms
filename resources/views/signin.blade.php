@@ -12,6 +12,7 @@
     <link rel="shortcut icon" href="{{ asset('images/MYFORMS logo - no color for favicon.ico') }}">
     <!-- Main styles of signin page -->
 	<link rel="stylesheet" type="text/css" href="{{ asset("assets/css/errors-notification.css") }}">
+	<link rel="stylesheet" type="text/css" href="{{ asset("assets/css/app.css") }}">
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/applications/css/auth.css') }}"/>
   </head>
   <body>
@@ -37,7 +38,10 @@
   				</div>
   				<div class="form-group" role="group" aria-label="Captcha input">
   					<label for="captcha">CAPTCHA</label>
-					<img src="{{ captcha_src() }}" data-tooltip="true" data-tooltip-title="Captcha image" loading="lazy" alt="captcha image">
+					  <div class="recaptcha" id="recaptcha" role="group" aria-label="Captcha image wrapper">
+						<img src="{{ captcha_src() }}" data-tooltip="true" data-tooltip-title="Captcha image" loading="lazy" alt="captcha image">
+						<button type="button" id="refresh-captcha" role="button" class="btn" data-tooltip="true" data-tooltip-title="Refresh captcha">Refresh</button>
+					</div>
   					<input type="text" name="captcha" id="captcha" class="input" placeholder="Isikan dengan captcha yang valid" aria-required="true" required>
   				</div>
 				<div class="form-group">
@@ -50,9 +54,15 @@
 
 	@includeWhen($errors->any(), 'partials.error-notification')
 
+	<!-- Banner section for under development -->
+	<div class="banner" role="banner" id="banner" aria-label="Under development banner" aria-describedby="banner-description">
+		<p id="banner-description" class="banner-description">Under development</p>
+	</div>
+
 	<!-- Script section -->
 	<script type="text/javascript" src="{{ asset("assets/js/errorNotification.js") }}"></script>
 	<script type="text/javascript" src="{{ asset("assets/js/tooltipManager.js") }}"></script>
+	<script type="text/javascript" src="{{ asset("assets/js/app.js") }}"></script>
 	<script type="text/javascript" src="{{ asset("assets/applications/js/auth.js") }}"></script>
   </body>
 </html>

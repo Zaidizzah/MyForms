@@ -129,16 +129,57 @@ window.FLASH_MESSAGE = ({
         </div>
     `;
 
+    // Append the flash message to the main content if user has ben authenticated
     const mainContent = document.querySelector("main.main-content");
     if (mainContent) {
         mainContent.insertAdjacentHTML(position, FLASH_MESSAGE);
         tooltipManager.init(); // Reinitialize tooltipManager
+
+        // Focus on flash message label
+        document.querySelector(`.flash-message#${ID}`)?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "center",
+        });
+    }
+
+    // If user has not been authenticated, append the flash message to the begin position of form-wrapper element in (signin and signup page)
+    const fromContentWrapper = document.querySelector(".form-content-wrapper");
+    if (fromContentWrapper) {
+        fromContentWrapper.insertAdjacentHTML(position, FLASH_MESSAGE);
+        tooltipManager.init(); // Reinitialize tooltipManager
+
+        // Focus on flash message label
+        document.querySelector(`.flash-message#${ID}`)?.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+            inline: "center",
+        });
     }
 
     // Remove handling for button
     document.querySelector(`#${ID}`)?.addEventListener("click", function () {
         this.remove();
     });
+};
+
+/**
+ * Checks the response status and handles the response accordingly
+ * @param {Response} response - The response object
+ * @returns {boolean} true if the response status is 200, false if the response status is 401 or 403
+ */
+window.CHECK_STATUS_RESPONSE = (response) => {
+    if (response.status === 401) {
+        window.location.href = "/signin";
+        return false;
+    }
+
+    if (response.status === 403) {
+        alert("Anda tidak memiliki akses ke halaman atau resources ini.");
+        return false;
+    }
+
+    return true;
 };
 
 (() => {
@@ -155,10 +196,12 @@ window.FLASH_MESSAGE = ({
 
     // Main content
     const mainContent = document.querySelector("main.main-content");
-    const mainContentElementPosition = parseInt(
-        window.getComputedStyle(mainContent).marginTop,
-        10
-    );
+    if (mainContent) {
+        const mainContentElementPosition = parseInt(
+            window.getComputedStyle(mainContent).marginTop,
+            10
+        );
+    }
 
     // Submenu toggle
     const submenuWrapper = document.querySelector(".submenu-wrapper");
@@ -186,25 +229,24 @@ window.FLASH_MESSAGE = ({
 
     // Icons credit visibility
     const iconsCredit = document.querySelector(".icons-credit");
-    const iconsCreditElementPosition = parseInt(
-        window.getComputedStyle(iconsCredit).bottom,
-        10
-    );
-
-    // Resizesing document
-    window.addEventListener(
-        "resize",
-        debounce(function (e) {
-            if (iconsCredit && !iconsCredit.classList.contains("show")) {
-                iconsCredit.style.bottom = `${
-                    iconsCreditElementPosition - iconsCredit.offsetHeight
-                }px`;
-            }
-        }, 500)
-    );
-
-    // Initializing style for icons credit elemnt
     if (iconsCredit) {
+        const iconsCreditElementPosition = parseInt(
+            window.getComputedStyle(iconsCredit).bottom,
+            10
+        );
+
+        // Resizesing document
+        window.addEventListener(
+            "resize",
+            debounce(function (e) {
+                if (iconsCredit && !iconsCredit.classList.contains("show")) {
+                    iconsCredit.style.bottom = `${
+                        iconsCreditElementPosition - iconsCredit.offsetHeight
+                    }px`;
+                }
+            }, 500)
+        );
+
         if (!iconsCredit.classList.contains("show")) {
             iconsCredit.style.bottom = `${
                 iconsCreditElementPosition - iconsCredit.offsetHeight
@@ -232,24 +274,24 @@ window.FLASH_MESSAGE = ({
 
     // Search function
     const searchInput = document.querySelector(".search-input");
-    searchInput.addEventListener("focus", function () {
+    searchInput?.addEventListener("focus", function () {
         this.placeholder = "Search or jump to...";
     });
 
-    searchInput.addEventListener("blur", function () {
+    searchInput?.addEventListener("blur", function () {
         this.placeholder = "Type CTRL + / to search";
     });
 
     // Adding focus to search element if user press the "/" button
     document.addEventListener("keyup", function (e) {
-        if (e.ctrlKey && e.key === "/") {
+        if (e.ctrlKey && e.key === "/" && searchInput) {
             searchInput.focus();
         }
     });
 
     // Button to top function
     const buttonToTop = document.querySelector(".going-to-top");
-    buttonToTop.addEventListener("click", function (e) {
+    buttonToTop?.addEventListener("click", function (e) {
         window.scrollTo({
             top: 0,
             behavior: "smooth",
@@ -290,6 +332,60 @@ window.FLASH_MESSAGE = ({
         });
     }
 
+    // SETTINGS menu listener
+    const settingsButton = document.querySelector(
+        'a[aria-controls="settings-submenu"]'
+    );
+    console.log(settingsButton);
+
+    if (settingsButton) {
+        settingsButton.addEventListener("click", function (e) {
+            e.preventDefault();
+
+            const submenu = document.querySelector(".submenu#settings-submenu");
+            if (submenu && !submenu.classList.contains("show")) {
+                submenu.classList.toggle("show");
+            } else if (submenu && submenu.classList.contains("show")) {
+                submenu.classList.toggle("show");
+            }
+        });
+    }
+
+    // LOGOUT leistener
+    const signOutButton = document.querySelector('a[aria-label="Signout"]');
+    if (signOutButton) {
+        signOutButton.addEventListener("click", async function (e) {
+            e.preventDefault();
+
+            const status = CREATE_STATUS_ELEMENT("Keluar dari aplikasi");
+            try {
+                const dialog = new ConfirmDialog({
+                    title: "Konfirmasi Keluar",
+                    message:
+                        "Apakah Anda yakin ingin keluar dari aplikasi ini?",
+                    icon: "✅",
+                    iconClass: "success",
+                    confirmClass: "danger",
+                });
+
+                const result = await dialog.show();
+
+                if (result) {
+                    window.location.href = signOutButton.href || "/signout";
+                }
+            } catch (error) {
+                console.error("Gagal keluar dari aplikasi:", error);
+                FLASH_MESSAGE({
+                    message: error.message,
+                    title: "Gagal menyimpan perubahan pada data pengguna terkait",
+                    type: "error",
+                });
+            } finally {
+                REMOVE_STATUS_ELEMENT(status);
+            }
+        });
+    }
+
     // Show/hide the modal
     function toggleModal(selector, show = true) {
         if (selector) {
@@ -306,14 +402,27 @@ window.FLASH_MESSAGE = ({
     }
 
     // Modals events2
-    document.querySelectorAll("[data-dismiss='modal'")?.forEach((element) => {
-        element.addEventListener("click", () => {
-            toggleModal(element.closest(".modal"), false);
+    const modalDismissElements = document.querySelectorAll(
+        "[data-dismiss='modal']"
+    );
+    if (modalDismissElements) {
+        modalDismissElements.forEach((element) => {
+            element.addEventListener("click", () => {
+                const modal = element.closest(".modal");
+                toggleModal(modal, false);
+            });
         });
-    });
-    document.querySelectorAll("[data-modal]")?.forEach((element) => {
-        element.addEventListener("click", () => {
-            toggleModal(document.querySelector(element.dataset.target));
+    }
+
+    const modalTriggerElements = document.querySelectorAll("[data-modal]");
+    if (modalTriggerElements) {
+        modalTriggerElements.forEach((element) => {
+            element.addEventListener("click", () => {
+                const targetModal = document.querySelector(
+                    element.dataset.target
+                );
+                toggleModal(targetModal);
+            });
         });
-    });
+    }
 })();

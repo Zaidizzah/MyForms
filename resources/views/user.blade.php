@@ -110,11 +110,11 @@
                                         <button type="button" role="button" class="btn edit-user-button" data-tooltip="true" data-tooltip-title="Edit data user '{{ $user->name }}'" data-uuid=":{{ $user->uuid }}">
                                             Edit
                                         </button>
-                                        <form action="{{ route("user.destroy", $user->uuid) }}" method="post">
+                                        <form class="form-delete-user" action="{{ route("user.destroy", $user->uuid) }}" method="post">
                                             @csrf
                                             @method('delete')
 
-                                            <button type="submit" role="button" class="btn delete-user-button" data-tooltip="true" data-tooltip-title="Hapus data user '{{ $user->name }}'" onclick="return confirm('Anda yakin ingin menghapus data user {{ $user->name }}?')">
+                                            <button type="submit" role="button" class="btn delete-user-button" data-tooltip="true" data-tooltip-title="Hapus data user '{{ $user->name }}'">
                                                 Hapus
                                             </button>
                                         </form>
@@ -133,7 +133,7 @@
                 <p>Formulir ini digunakan untuk menambahkan data pengguna baru.</p>
             </div>
 
-            <form action="{{ route("user.store") }}" method="post">
+            <form class="form-add-user" action="{{ route("user.store") }}" method="post">
                 @csrf
 
                 <label for="input-name" class="input-label">Name <span class="required-label"></span></label>

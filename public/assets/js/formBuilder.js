@@ -111,14 +111,38 @@ class FormBuilder {
         // Reset form button
         const resetBtn = document.querySelector(".reset-form-btn");
         if (resetBtn) {
-            resetBtn.addEventListener("click", (e) => {
+            resetBtn.addEventListener("click", async (e) => {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (!confirm("Anda yakin ingin menghapus formulir ini?"))
-                    return;
+                const status = CREATE_STATUS_ELEMENT(
+                    "Menghapus atau mereset ulang formulir"
+                );
+                try {
+                    const dialog = new ConfirmDialog({
+                        title: "Konfirmasi reset formulir",
+                        message:
+                            "Apakah Anda yakin ingin menghapus atau mereset ulang formulir ini?",
+                        icon: "⚠️",
+                        iconClass: "warning",
+                    });
 
-                this.resetForm();
+                    const result = await dialog.show();
+
+                    if (result) this.resetForm();
+                } catch (error) {
+                    console.error(
+                        "Gagal menghapus atau mereset ulang formulir:",
+                        error
+                    );
+                    FLASH_MESSAGE({
+                        message: error.message,
+                        title: "Gagal menghapus atau mereset ulang formulir",
+                        type: "error",
+                    });
+                } finally {
+                    REMOVE_STATUS_ELEMENT(status);
+                }
             });
         }
 
@@ -157,10 +181,19 @@ class FormBuilder {
                 this.addQuestion(this.selectedQuestionType);
             } else {
                 console.warn("Question type not found in dataset");
+                FLASH_MESSAGE({
+                    type: "error",
+                    message:
+                        "Gagal untuk memilih jenis pertanyaan: Jenis pertanyaan tidak ditemukan dalam dataset elemen",
+                });
             }
         } catch (error) {
             console.error("Error selecting question type:", error);
-            alert("Terjadi kesalahan saat memilih jenis pertanyaan");
+            FLASH_MESSAGE({
+                type: "error",
+                message:
+                    "Gagal untuk memilih jenis pertanyaan: " + error.message,
+            });
         }
     }
 
@@ -174,6 +207,11 @@ class FormBuilder {
         // Robust validation
         if (!questionType) {
             console.warn("Question type not specified, skipping add");
+            FLASH_MESSAGE({
+                type: "error",
+                message:
+                    "Gagal menambahkan pertanyaan baru: Jenis pertanyaan tidak ditemukan",
+            });
             return;
         }
 
@@ -192,7 +230,11 @@ class FormBuilder {
             this.render();
         } catch (error) {
             console.error("Error adding question:", error);
-            alert("Terjadi kesalahan saat menambah pertanyaan");
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal menambahkan pertanyaan baru: " + error.message,
+            });
+
             this.questionCounter({
                 added: false,
             }); // Rollback counter
@@ -220,6 +262,10 @@ class FormBuilder {
             }
         } catch (error) {
             console.error("Error updating question:", error);
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal memperbarui pertanyaan: " + error.message,
+            });
         }
     }
 
@@ -233,7 +279,11 @@ class FormBuilder {
 
         const validation = this.fileManager.validateFile(file);
         if (!validation.valid) {
-            alert(validation.error);
+            FLASH_MESSAGE({
+                type: "error",
+                message:
+                    "Gagal mengunggah gambar pertanyaan: " + validation.error,
+            });
             return;
         }
 
@@ -257,7 +307,10 @@ class FormBuilder {
             }
         } catch (error) {
             console.error("Error uploading question image:", error);
-            alert("Gagal mengupload gambar: " + error.message);
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal mengunggah gambar pertanyaan: " + error.message,
+            });
         }
     }
 
@@ -272,14 +325,16 @@ class FormBuilder {
 
         const validation = this.fileManager.validateFile(file);
         if (!validation.valid) {
-            alert(validation.error);
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal mengupload gambar pilihan: " + validation.error,
+            });
             return;
         }
 
         try {
             // Upload file using new method
             const result = await this.fileManager.uploadFile(file, "option");
-            console.log(result);
 
             const question = this.questions.find((q) => q.id === questionId);
             if (question && question.options[optionIndex]) {
@@ -294,7 +349,10 @@ class FormBuilder {
             }
         } catch (error) {
             console.error("Error uploading option image:", error);
-            alert("Gagal mengupload gambar: " + error.message);
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal mengupload gambar pilihan: " + error.message,
+            });
         }
     }
 
@@ -323,7 +381,10 @@ class FormBuilder {
             this.render();
         } catch (error) {
             console.error("Error deleting question image:", error);
-            alert("Gagal menghapus gambar");
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal menghapus gambar pertanyaan: " + error.message,
+            });
         }
     }
 
@@ -359,7 +420,10 @@ class FormBuilder {
             this.render();
         } catch (error) {
             console.error("Error deleting option image:", error);
-            alert("Gagal menghapus gambar");
+            FLASH_MESSAGE({
+                message: "Gagal menghapus gambar pilihan: " + error.message,
+                type: "error",
+            });
         }
     }
 
@@ -378,6 +442,10 @@ class FormBuilder {
             }
         } catch (error) {
             console.error("Error adding option:", error);
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal menambahkan pilihan: " + error.message,
+            });
         }
     }
 
@@ -396,6 +464,10 @@ class FormBuilder {
             }
         } catch (error) {
             console.error("Error updating option:", error);
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal memperbarui pilihan: " + error.message,
+            });
         }
     }
 
@@ -418,6 +490,10 @@ class FormBuilder {
             }
         } catch (error) {
             console.error("Error removing option:", error);
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal menghapus pilihan: " + error.message,
+            });
         }
     }
 
@@ -425,9 +501,21 @@ class FormBuilder {
      * Deletes question
      * @param {number} id - Question ID
      */
-    deleteQuestion(id) {
+    async deleteQuestion(id) {
+        const status = CREATE_STATUS_ELEMENT(
+            "Menghapus atau mereset ulang formulir"
+        );
         try {
-            if (confirm("Yakin ingin menghapus pertanyaan ini?")) {
+            const dialog = new ConfirmDialog({
+                title: "Konfirmasi Hapus",
+                message: "Apakah Anda yakin ingin menghapus pertanyaan ini?",
+                icon: "⚠️",
+                iconClass: "warning",
+            });
+
+            const result = await dialog.show();
+
+            if (result) {
                 const question = this.questions.find((q) => q.id === id);
 
                 // Delete associated images
@@ -465,6 +553,12 @@ class FormBuilder {
             }
         } catch (error) {
             console.error("Error deleting question:", error);
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal menghapus pertanyaan: " + error.message,
+            });
+        } finally {
+            REMOVE_STATUS_ELEMENT(status);
         }
     }
 
@@ -494,6 +588,10 @@ class FormBuilder {
             this.render();
         } catch (error) {
             console.error("Error moving question:", error);
+            FLASH_MESSAGE({
+                type: "error",
+                message: "Gagal memindahkan pertanyaan: " + error.message,
+            });
         }
     }
 
@@ -973,7 +1071,11 @@ class FormBuilder {
         // check if url has been set
         if (!this.url) {
             console.warn("URL not set, skipping save");
-            alert("URL not set, skipping save");
+            FLASH_MESSAGE({
+                message:
+                    "URL formulir belum diset! Silahkan set URL formulir terlebih dahulu. (Proses penyimpanan dibatalkan)",
+                type: "error",
+            });
             return;
         }
 
@@ -985,11 +1087,14 @@ class FormBuilder {
         this.saveInProgress = true;
 
         const loader = APPEND_LOADER(".save-form-btn", "afterbegin", true);
-        const statusElementId = CREATE_STATUS_ELEMENT("Menyimpan formulir");
+        const status = CREATE_STATUS_ELEMENT("Menyimpan formulir");
         try {
             const validation = this.validateForm();
             if (!validation.valid) {
-                alert(validation.error);
+                FLASH_MESSAGE({
+                    message: "Gagal menyimpan formulir: " + validation.error,
+                    type: "error",
+                });
                 return;
             }
 
@@ -1011,9 +1116,13 @@ class FormBuilder {
                     "X-CSRF-TOKEN": CSRF_TOKEN,
                 },
                 body: JSON.stringify(formData),
+                credentials: true,
             });
 
             console.log(formData, JSON.stringify(formData), response);
+
+            // check status response if the status code is in (401, 403) then return false
+            if (!CHECK_STATUS_RESPONSE(response)) return false;
 
             if (!response.ok) {
                 throw new Error("Failed to save form");
@@ -1021,16 +1130,26 @@ class FormBuilder {
 
             const data = await response.json();
 
-            if (confirm("Ingin membuat formulir baru?")) {
-                this.resetForm();
-            }
+            const dialog = new ConfirmDialog({
+                title: "Konfirmasi",
+                message: "Apakah Anda ingin membuat formulir baru?",
+                icon: "✅",
+                iconClass: "success",
+            });
+
+            const result = await dialog.show();
+
+            if (result) this.resetForm();
         } catch (error) {
             console.error("Error saving form:", error);
-            alert("Terjadi kesalahan saat menyimpan formulir");
+            FLASH_MESSAGE({
+                message: error.message,
+                type: "error",
+            });
         } finally {
             this.saveInProgress = false;
             REMOVE_LOADER(loader);
-            REMOVE_STATUS_ELEMENT(statusElementId);
+            REMOVE_STATUS_ELEMENT(status);
         }
     }
 
@@ -1038,7 +1157,7 @@ class FormBuilder {
      * Resets the form to initial state
      */
     resetForm() {
-        const statusElementId = CREATE_STATUS_ELEMENT(
+        const status = CREATE_STATUS_ELEMENT(
             "Menghapus atau memuat ulang formulir baru"
         );
         try {
@@ -1077,9 +1196,12 @@ class FormBuilder {
             });
         } catch (error) {
             console.error("Error resetting form:", error);
-            alert("Terjadi kesalahan saat mereset formulir");
+            FLASH_MESSAGE({
+                message: "Terjadi kesalahan saat memuat ulang formulir",
+                type: "error",
+            });
         } finally {
-            REMOVE_STATUS_ELEMENT(statusElementId);
+            REMOVE_STATUS_ELEMENT(status);
         }
     }
 }

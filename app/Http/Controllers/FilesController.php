@@ -21,7 +21,10 @@ class FilesController extends Controller
         // Check if file upload was successful
         if ($file_path === false) {
             if ($request->acceptsJson()) {
-                return $this->errorResponse(message: "File untuk tipe " . ($request->input('context') === 'question' ? 'pertanyaan' : 'pilihan') . " gagal diupload");
+                // refresh token
+                $request->session()->regenerateToken();
+
+                return $this->errorResponse("File untuk tipe " . ($request->input('context') === 'question' ? 'pertanyaan' : 'pilihan') . " gagal diupload");
             } else {
                 return redirect()->back()->with('flash-message', [
                     'type' => 'error',

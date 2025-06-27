@@ -7,9 +7,12 @@ use Illuminate\Validation\Rules\Password;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Traits\ApiResponse;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
+
     public function show_signin()
     {
         return view('signin');
@@ -97,5 +100,21 @@ class AuthController extends Controller
             'title' => 'Success',
             'message' => 'Anda telah berhasil keluar dari aplikasi MYFORMS'
         ]);
+    }
+
+    public function refresh_captcha(Request $request)
+    {
+        // Check if request accepts json response
+        if ($request->acceptsJson()) {
+            return $this->successResponse([
+                'captcha_src' => captcha_src(), // source (src image of captcha)
+            ], "Captcha is successfully refreshed");
+        } else {
+            return redirect()->back()->with('flash-message', [
+                'type' => 'error',
+                'title' => 'Error',
+                'message' => 'Captcha is cannot be refreshed at this time, please try again'
+            ]);
+        }
     }
 }

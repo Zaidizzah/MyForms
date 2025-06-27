@@ -20,6 +20,7 @@
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/tablist.css") }}">
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/table.css") }}">
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/errors-notification.css") }}">
+    <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/confirm-dialog.css") }}">
     <link rel="stylesheet" type="text/css" href="{{ asset("assets/css/app.css") }}">
   </head>
   <body>
@@ -47,11 +48,30 @@
       </div>
 
       <div class="navbar-right">
-        <div class="nav-item" data-tooltip="true" data-tooltip-title="Settings for MYFORMS">
-            <a href="/" role="button"><img class="icon" src="{{ asset("images/application icons/settings.png") }}" loading="lazy" alt="Settings icon"></a>
+        <div class="nav-item">
+            <a href="/" role="button" aria-controls="settings-submenu"><img class="icon" src="{{ asset("images/application icons/settings.png") }}" loading="lazy" alt="Settings icon"></a>
+
+            <!-- Settings submenu -->
+            <form action="/config" method="post" class="submenu" id="settings-submenu" role="menu" aria-labelledby="settings-submenu-title" aria-hidden="true">
+              <div class="submenu-title" id="settings-submenu-title">
+                <span>Menu Pengaturan</span>
+              </div>
+              <div class="submenu-item" role="menuitem" data-tooltip="true" data-tooltip-title="Aktifkan development label">
+                  <label for="development-label-checkbox">Development Label</label>
+                  <input type="checkbox" name="development-label" id="development-label-checkbox" checked aria-checked="true" aria-required="false">
+              </div>
+              <div class="submenu-item" role="menuitem" data-tooltip="true" data-tooltip-title="Aktifkan dark mode (tema gelap [beta])">
+                  <label for="dark-mode-checkbox">Dark Mode</label>
+                  <input type="checkbox" name="dark-mode" id="dark-mode-checkbox" aria-checked="false" aria-required="false">
+              </div>
+              <div class="submenu-item" role="menuitem" data-tooltip="true" data-tooltip-title="Warna latar belakang">
+                  <label for="background-color">Background</label>
+                  <input type="color" name="background-color" id="background-color" value="#ffffff" aria-checked="false" aria-required="false">
+              </div>
+            </form>
         </div>
-        <div class="nav-item" data-tooltip="true" data-tooltip-title="Logout from MYFORMS">
-            <a href="{{ route("signout") }}" role="button" onclick="return confirm('Apakah anda yakin ingin keluar dari aplikasi MYFORMS ini?')"><img class="icon" src="{{ asset("images/application icons/logout.png") }}" loading="lazy" alt="Logout icon"></a>
+        <div class="nav-item">
+            <a href="{{ route("signout") }}" role="button" data-tooltip="true" data-tooltip-title="Logout from MYFORMS" aria-label="Signout"><img class="icon" src="{{ asset("images/application icons/logout.png") }}" loading="lazy" alt="Logout icon"></a>
         </div>
         <div class="nav-item">
             <div class="user-info">
@@ -128,6 +148,11 @@
       @includeWhen($errors->any(), 'partials.error-notification')
     </main>
 
+    <!-- Banner section for under development -->
+    <div class="banner" role="banner" id="banner" aria-label="Under development banner" aria-describedby="banner-description">
+      <p id="banner-description" class="banner-description">Under development</p>
+    </div>
+
     <!-- Icons image credits -->
     <div class="icons-credit" aria-describedby="icons-credit-info">
         <button type="button" role="button" class="icons-credit-toggler" data-tooltip="true" data-tooltip-title="Toggle icon credit" aria-label="Button to toggle visibility of icons credit"><span></span></button>
@@ -142,6 +167,7 @@
     <script type="text/javascript" src="{{ asset("assets/js/errorNotification.js") }}"></script>
     <script type="text/javascript" src="{{ asset("assets/js/tooltipManager.js") }}"></script>
     <script type="text/javascript" src="{{ asset("assets/js/tableColumnReorder.js") }}"></script>
+    <script type="text/javascript" src="{{ asset("assets/js/confirmDialog.js") }}"></script>
     <script type="text/javascript" src="{{ asset("assets/js/app.js") }}"></script>
     @generate_tags('script', $javascript)
   </body>
